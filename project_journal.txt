@@ -1,0 +1,36 @@
+[2026-09-12T12:39:26Z] Initialized project journal. Read the README.md to understand the full project specifications for Type & Atone.
+[2026-09-12T12:39:36Z] Created the initial directory structure for the backend and n8n as specified in Section 5 of the README.
+[2026-09-12T12:39:46Z] Created backend/requirements.txt with FastAPI, Uvicorn, SQLModel, pydantic-settings, httpx, pyserial, opencv, and pytest dependencies based on Section 3 stack choices.
+[2026-09-12T12:39:55Z] Created .gitignore to ignore .env, sqlite DBs, pycache, venv, and node_modules as instructed.
+[2026-09-12T12:40:05Z] Created backend/.env.example containing the configuration reference from Section 13.
+[2026-09-12T12:40:12Z] Copied backend/.env.example to backend/.env for active development.
+[2026-09-12T12:40:24Z] Implemented backend/src/config/settings.py using pydantic-settings to manage environment variables.
+[2026-09-12T12:40:35Z] Implemented backend/src/db/database.py for SQLite initialization and SQLModel session dependency.
+[2026-09-12T12:40:48Z] Implemented backend/src/models/session.py with GameSession table and SessionState enum.
+[2026-09-12T12:40:59Z] Implemented backend/src/models/incident.py with Incident table, ChoiceEnum and OutcomeEnum.
+[2026-09-12T12:41:08Z] Implemented backend/src/models/letter.py with Letter table.
+[2026-09-12T12:41:17Z] Added __init__.py in backend/src/models to expose all models.
+[2026-09-12T12:41:29Z] Implemented backend/src/ws/connection_manager.py for managing WebSocket connections per session.
+[2026-09-12T12:41:39Z] Implemented backend/src/services/difficulty.py with calculate_crank_required scaling logic.
+[2026-09-12T12:41:50Z] Implemented backend/src/services/sincerity_gate.py for checking word counts and checking truth attempt escalation.
+[2026-09-12T12:42:08Z] Implemented backend/src/services/n8n_client.py that handles making asynchronous API requests to the n8n webhook and updating database and websockets accordingly.
+[2026-09-12T12:42:17Z] Implemented backend/src/services/hardware/base.py interface.
+[2026-09-12T12:42:26Z] Added backend/src/services/hardware/serial_provider.py as a stub for Phase 2.
+[2026-09-12T12:42:35Z] Added backend/src/services/hardware/vision_provider.py as a stub for Phase 2.
+[2026-09-12T12:42:45Z] Added factory method get_crank_provider in backend/src/services/hardware/__init__.py.
+[2026-09-12T12:43:00Z] Implemented backend/src/api/sessions.py defining all session lifecycle REST API endpoints.
+[2026-09-12T12:43:19Z] Implemented backend/src/api/incidents.py defining truth/dare choice, apology submission, and crank progress endpoints.
+[2026-09-12T12:43:29Z] Implemented backend/src/api/letters.py for retrieving letter personas.
+[2026-09-12T12:43:41Z] Implemented backend/src/main.py tying together routers, database initialization, health check, and WebSocket endpoint.
+[2026-09-12T12:43:58Z] Added initial n8n/workflows/sincerity-check.json workflow export as described in Section 9.2.
+[2026-09-12T12:44:08Z] Added unit tests for calculate_crank_required in backend/tests/test_difficulty.py.
+[2026-09-12T12:44:31Z] Added unit tests for the state machine in backend/tests/test_state_machine.py and updated /session/start to return 201.
+[2026-09-12T12:47:19Z] Fixed SQLite in-memory threading issues in tests and verified that pytest runs successfully. Created local db directory.
+[2026-09-12T12:47:39Z] Added automatic seeding of the 26 letters into the SQLite database on startup in backend/src/main.py.
+[2026-09-12T12:47:52Z] Added dev override endpoint to backend/src/api/incidents.py for bypassing incidents during demos.
+[2026-09-12T12:48:09Z] Verified server starts properly with Uvicorn. All Phase 1 requirements from the README are complete.
+[2026-09-12T12:48:19Z] Initialized git repository and committed all Phase 1 files.
+[2026-09-12T13:20:33Z] Added docker-compose.yml to the root directory for self-hosted n8n container, mapping it to port 5679 to avoid conflicts with existing setup.
+[2026-09-12T13:20:43Z] Copied sincerity-check.json to /workflows folder to make it easily accessible for manual import if needed.
+[2026-09-12T13:20:53Z] Committed docker-compose.yml and workflows setup to git.
+[2026-09-12T13:33:02Z] Fixed the 'Check Word Count' node in the n8n workflow by downgrading typeVersion from 3 to 2.3 for compatibility with n8n version 2.38.6. Re-imported the workflow into the n8n GUI and updated the exported json.

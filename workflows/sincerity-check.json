@@ -1,0 +1,202 @@
+[
+  {
+    "id": "sincerity-check-ad626bb8",
+    "name": "Sincerity Check",
+    "active": false,
+    "createdAt": "2026-09-12T13:32:42.777774Z",
+    "updatedAt": "2026-09-12T13:32:42.777834Z",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "sincerity-check",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "id": "71881446-7699-4489-99be-3cb4c0f1c6ec",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          200,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "\nconst body = $input.item.json.body || {};\nconst text = body.apology_text || '';\nconst minWords = body.min_words || 50;\nconst threshold = body.threshold || 70;\nconst letter = body.letter || 'Unknown';\n\nconst wordCount = text.split(/\\s+/).filter(w => w.length > 0).length;\n\nconst prompt = `You are the Sincerity Warden, a whimsical but fair judge in a typing-test game.\nA player just deleted the letter \"${letter}\" by pressing Backspace, and must now\natone by writing a genuine, thoughtful apology of at least ${minWords} words\naddressed directly to that letter.\n\nEvaluate the apology below strictly on:\n1. Genuine tone and effort.\n2. Coherence and relevance to apologizing to the letter \"${letter}\".\n3. Absence of filler, copy-pasted repetition, or nonsense text used purely to\n   hit the word count.\n\nRespond with ONLY a JSON object matching the required schema, no other text.\nA sincerity_score of ${threshold} or above must map to verdict \"pass\"; below it,\n\"fail\". Be encouraging but do not pass apologies that are clearly insincere,\nnonsensical, or padded filler.\n\nApology to evaluate:\n\"\"\"\n${text}\n\"\"\"`;\n\n$input.item.json.wordCount = wordCount;\n$input.item.json.minWords = minWords;\n$input.item.json.prompt = prompt;\nreturn $input.item;\n            "
+        },
+        "id": "343f8063-3d2a-4caf-a547-950f573da988",
+        "name": "Prepare & Validate",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          400,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "e93f6682-1df8-4c90-b997-512c9c5427d7",
+                "leftValue": "={{ $json.wordCount }}",
+                "rightValue": "={{ $json.minWords }}",
+                "operator": {
+                  "type": "number",
+                  "operation": "gte"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "5a905034-4961-4859-88a7-0f5804b314f3",
+        "name": "Check Word Count",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          600,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\n  \"sincerity_score\": 0,\n  \"verdict\": \"fail\",\n  \"feedback\": \"Your apology was too short. You need at least {{ $json.minWords }} words.\"\n}",
+          "options": {}
+        },
+        "id": "57f1ef41-6c7f-459d-86d4-edd1779cf50a",
+        "name": "Respond Fail (Too Short)",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          800,
+          500
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "http://host.docker.internal:11434/api/chat",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"model\": \"llama3.1:8b\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify($json.prompt) }}\n    }\n  ],\n  \"stream\": false,\n  \"options\": {\n    \"temperature\": 0.2\n  },\n  \"format\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"sincerity_score\": { \"type\": \"integer\", \"minimum\": 0, \"maximum\": 100 },\n      \"verdict\": { \"type\": \"string\", \"enum\": [\"pass\", \"fail\"] },\n      \"feedback\": { \"type\": \"string\" }\n    },\n    \"required\": [\"sincerity_score\", \"verdict\", \"feedback\"]\n  }\n}",
+          "options": {}
+        },
+        "id": "13017e32-6ed1-4062-97ed-506e132b4d55",
+        "name": "Ollama HTTP Request",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          800,
+          100
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "\ntry {\n  const content = JSON.parse($input.item.json.message.content);\n  return {\n    json: {\n      sincerity_score: content.sincerity_score || 0,\n      verdict: content.verdict === 'pass' ? 'pass' : 'fail',\n      feedback: content.feedback || 'No feedback provided.'\n    }\n  };\n} catch (e) {\n  return {\n    json: {\n      sincerity_score: 0,\n      verdict: 'fail',\n      feedback: 'The Sincerity Warden was confused by your apology (internal error).'\n    }\n  };\n}\n            "
+        },
+        "id": "915da9f6-8456-4a22-b848-3100661b1a90",
+        "name": "Parse & Guard",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1000,
+          100
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ JSON.stringify($json) }}",
+          "options": {}
+        },
+        "id": "4704280a-6e97-405f-ae25-b42f536b4f07",
+        "name": "Respond Success",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1200,
+          100
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Prepare & Validate",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare & Validate": {
+        "main": [
+          [
+            {
+              "node": "Check Word Count",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Word Count": {
+        "main": [
+          [
+            {
+              "node": "Ollama HTTP Request",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Respond Fail (Too Short)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Ollama HTTP Request": {
+        "main": [
+          [
+            {
+              "node": "Parse & Guard",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse & Guard": {
+        "main": [
+          [
+            {
+              "node": "Respond Success",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    }
+  }
+]
