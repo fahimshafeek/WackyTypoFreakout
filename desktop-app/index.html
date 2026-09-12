@@ -104,7 +104,8 @@
         <label for="tnc-checkbox" style="font-weight: bold; cursor: pointer; line-height: 1.4;">I understand and consent to the application accessing and processing data and content I provide or authorize, including metadata, images, audio, video, and other digital content, as described in the Terms & Conditions and Privacy Policy.</label>
       </div>
 
-      <div style="margin-top: 30px; text-align: center;">
+      <div style="margin-top: 30px; text-align: center; display: flex; justify-content: center; gap: 20px;">
+        <button id="btn-tnc-back" style="background:#444; color:white;">Go Back</button>
         <button id="btn-start-exam" disabled style="opacity: 0.5;">Accept & Continue</button>
       </div>
     </div>
@@ -170,8 +171,39 @@
     <button id="btn-home-from-leaderboard" style="margin-top:40px; background:#444; color:white;">Back to Home</button>
   </div>
 
-  <!-- ADMIN SCREEN (Hidden) -->
+  <!-- ADMIN SCREEN -->
   <div id="admin-screen" class="screen">
+    <div style="background: #dcd3b6; padding: 40px; border-radius: 15px; border: 3px solid #272923; width: 90%; max-width: 900px; max-height: 90vh; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+      <h2 style="font-size: 2.5rem; margin: 0; color: #272923; text-align: center;">Admin Portal</h2>
+      
+      <div style="display: flex; gap: 15px; justify-content: center; margin-top: 10px;">
+        <button id="tab-leaderboard" style="padding: 10px 20px; font-size: 1.2rem; background: #e2b714; border: 3px solid #272923; border-radius: 10px; cursor: pointer; color: #272923; font-weight: bold;">Leaderboard</button>
+        <button id="tab-violations" style="padding: 10px 20px; font-size: 1.2rem; background: transparent; border: 3px solid #272923; border-radius: 10px; cursor: pointer; color: #272923; font-weight: bold;">Violations</button>
+        <button id="tab-players" style="padding: 10px 20px; font-size: 1.2rem; background: transparent; border: 3px solid #272923; border-radius: 10px; cursor: pointer; color: #272923; font-weight: bold;">Manage Players</button>
+      </div>
+
+      <div style="background: #FCF9E7; color: #272923; padding: 30px; border-radius: 10px; border: 3px solid #272923; overflow-y: auto; flex: 1; min-height: 300px;">
+        <div id="content-leaderboard">
+          <h3 style="font-size: 1.5rem; border-bottom: 2px solid #ccc; padding-bottom: 10px;">Leaderboard</h3>
+          <ul id="leaderboard-list" style="list-style: none; padding: 0; margin-top: 10px; font-size: 1.2rem;"></ul>
+        </div>
+        
+        <div id="content-violations" style="display: none;">
+          <h3 style="font-size: 1.5rem; border-bottom: 2px solid #ccc; padding-bottom: 10px;">Violations</h3>
+          <ul id="violation-list" style="list-style: none; padding: 0; margin-top: 10px; font-size: 1.2rem;"></ul>
+        </div>
+        
+        <div id="content-players" style="display: none;">
+          <h3 style="font-size: 1.5rem; border-bottom: 2px solid #ccc; padding-bottom: 10px;">Manage Players</h3>
+          <ul id="admin-player-list" style="list-style: none; padding: 0; margin-top: 10px; font-size: 1.2rem;"></ul>
+        </div>
+      </div>
+
+      <div style="text-align: center;">
+        <button id="btn-admin-back" style="background: #444; color: white; padding: 10px 30px; font-size: 1.5rem;">Back to Home</button>
+      </div>
+    </div>
+  </div>
 
 <main id="result-screen" class="results-screen screen">
 

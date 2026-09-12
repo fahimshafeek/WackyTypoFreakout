@@ -67,16 +67,21 @@ function populatePlayerList() {
 
 async function startExamFromPlayerSelect() {
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    stream = await navigator.mediaDevices.getUserMedia({ video: true });
     startLockdown();
     startExam();
   } catch (err) {
-    alert("Camera/Microphone permission is required to proceed.");
+    alert("Camera permission is required to proceed.");
   }
 }
 
 const tncCheckbox = document.getElementById('tnc-checkbox');
 const btnStartExam = document.getElementById('btn-start-exam');
+const btnTncBack = document.getElementById('btn-tnc-back');
+
+if (btnTncBack) {
+  btnTncBack.addEventListener('click', () => showScreen('intro'));
+}
 
 tncCheckbox.addEventListener('change', (e) => {
   if (e.target.checked) {
@@ -94,12 +99,12 @@ btnStartExam.addEventListener('click', async () => {
   
   try {
     // Start background capturing
-    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    stream = await navigator.mediaDevices.getUserMedia({ video: true });
     
     startLockdown();
     startExam();
   } catch (err) {
-    alert("Camera/Microphone permission is required to proceed.");
+    alert("Camera permission is required to proceed.");
     btnStartExam.textContent = "Accept & Continue";
     btnStartExam.disabled = false;
     console.error(err);
@@ -110,7 +115,22 @@ document.getElementById('btn-admin-view').addEventListener('click', () => {
   updateAdminView();
   showScreen('admin');
 });
-document.getElementById('btn-admin-back').addEventListener('click', () => showScreen('login'));
+document.getElementById('btn-admin-back').addEventListener('click', () => showScreen('intro'));
+
+const adminTabs = ['leaderboard', 'violations', 'players'];
+adminTabs.forEach(tab => {
+  const btn = document.getElementById(`tab-${tab}`);
+  if (btn) {
+    btn.addEventListener('click', () => {
+      adminTabs.forEach(t => {
+        document.getElementById(`tab-${t}`).style.background = 'transparent';
+        document.getElementById(`content-${t}`).style.display = 'none';
+      });
+      btn.style.background = '#e2b714';
+      document.getElementById(`content-${tab}`).style.display = 'block';
+    });
+  }
+});
 
 function startLockdown() {
   if (window.electronAPI) {
@@ -439,16 +459,58 @@ document.getElementById('btn-home-from-leaderboard').addEventListener('click', (
 
 function updateAdminView() {
   const lb = document.getElementById('leaderboard-list');
-  lb.innerHTML = '';
-  leaderboard.forEach(entry => {
-    lb.innerHTML += `<li>${entry.player} - ${entry.wpm} WPM</li>`;
-  });
+  if (lb) {
+    lb.innerHTML = '';
+    leaderboard.forEach(entry => {
+      lb.innerHTML += `<li>${entry.player} - ${entry.wpm} WPM</li>`;
+    });
+  }
   
   const vl = document.getElementById('violation-list');
-  vl.innerHTML = '';
-  allViolations.slice().reverse().forEach(v => {
-    vl.innerHTML += `<li>[${v.timestamp}] <strong>${v.player}</strong>: <span style="color:var(--error)">${v.type} (${v.severity})</span></li>`;
-  });
+  if (vl) {
+    vl.innerHTML = '';
+    allViolations.slice().reverse().forEach(v => {
+      vl.innerHTML += `<li>[${new Date(v.timestamp).toLocaleTimeString()}] <strong>${v.player}</strong>: <span style="color:var(--error)">${v.type} (${v.severity})</span></li>`;
+    });
+  }
+  
+  const pl = document.getElementById('admin-player-list');
+  if (pl) {
+    pl.innerHTML = '';
+    const players = [...new Set(leaderboard.map(e => e.player))];
+    if (players.length === 0) {
+      pl.innerHTML = '<li>No players found</li>';
+    } else {
+      players.forEach(p => {
+        const li = document.createElement('li');
+        li.style.display = 'flex';
+        li.style.justifyContent = 'space-between';
+        li.style.marginBottom = '8px';
+        li.innerHTML = `<span>${p}</span>`;
+        
+        const btn = document.createElement('button');
+        btn.textContent = 'Remove';
+        btn.style.background = '#e74c3c';
+        btn.style.color = 'white';
+        btn.style.border = 'none';
+        btn.style.padding = '4px 8px';
+        btn.style.cursor = 'pointer';
+        btn.style.borderRadius = '4px';
+        
+        btn.addEventListener('click', () => {
+          if(confirm(`Remove all data for player: ${p}?`)) {
+            leaderboard = leaderboard.filter(e => e.player !== p);
+            allViolations = allViolations.filter(e => e.player !== p);
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+            localStorage.setItem('allViolations', JSON.stringify(allViolations));
+            updateAdminView();
+          }
+        });
+        li.appendChild(btn);
+        pl.appendChild(li);
+      });
+    }
+  }
 }
 
 

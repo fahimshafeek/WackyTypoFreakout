@@ -1,6 +1,9 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
+// Force bypass all camera/mic permission prompts
+app.commandLine.appendSwitch('use-fake-ui-for-media-stream');
+
 let mainWindow;
 
 function createWindow() {
