@@ -15,42 +15,113 @@
     </div>
   </div>
 
-  <!-- LOGIN SCREEN -->
-  <div id="login-screen" class="screen active">
-    <h1>MonkeyType Proctored Exam</h1>
-    <input type="text" id="player-name" placeholder="Enter your name">
-    <button id="btn-login">Login</button>
-    <button id="btn-admin-view" style="margin-top:20px; background:#444; color: white;">Admin Dashboard</button>
+  <!-- INTRO SCREEN -->
+  <div id="intro-screen" class="screen active">
+    <h1 style="font-size: 3rem; margin-bottom: 20px;">WackyTypoFreakout</h1>
+    <div style="font-size: 1.5rem; max-width: 600px; text-align: center; margin-bottom: 40px; color: #323437;">
+      <p><strong>Every action has a consequence. Every typo comes with a price.</strong></p>
+      <p><strong>Think you can handle it?</strong></p>
+    </div>
+    <div style="display: flex; gap: 20px;">
+      <button id="btn-show-signin">SIGN IN</button>
+      <button id="btn-show-players">CHOOSE PLAYER</button>
+    </div>
+    <button id="btn-admin-view" style="margin-top:40px; background:#444; color: white;">Admin Dashboard</button>
   </div>
 
-  <!-- DEVICE CHECK SCREEN -->
-  <div id="device-check-screen" class="screen">
-    <h2>Device Check</h2>
-    <div class="check-item">
-      <span>Webcam Status:</span> <span id="cam-status" class="status-pending">Checking...</span>
+  <!-- SIGN IN SCREEN -->
+  <div id="signin-screen" class="screen">
+    <h2>Sign In</h2>
+    <input type="text" id="player-name" placeholder="Enter your name">
+    <div style="display: flex; gap: 20px; margin-top: 20px;">
+      <button id="btn-back-intro-1" style="background:#444; color:white;">Back</button>
+      <button id="btn-login-next">Next</button>
     </div>
-    <div class="check-item">
-      <span>Microphone Status:</span> <span id="mic-status" class="status-pending">Checking...</span>
+  </div>
+
+  <!-- CHOOSE PLAYER SCREEN -->
+  <div id="choose-player-screen" class="screen">
+    <h2>Choose Player</h2>
+    <div id="player-list-container" style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px; max-height:400px; overflow-y:auto; width: 300px; align-items: stretch;">
     </div>
-    <video id="preview-video" autoplay muted></video>
-    <button id="btn-start-exam" disabled>Start Exam & Enter Lockdown</button>
+    <button id="btn-back-intro-2" style="background:#444; color:white;">Back</button>
+  </div>
+
+  <!-- T&C SCREEN -->
+  <div id="tnc-screen" class="screen">
+    <div class="tnc-container" style="background: #FCF9E7; color: #272923; padding: 40px; border-radius: 15px; border: 3px solid #272923; max-width: 800px; max-height: 80vh; overflow-y: auto; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+      <h2 style="color: #272923;">Terms & Conditions</h2>
+      <p><em>Last Updated: September 2026</em></p>
+      <p>By using this application, you acknowledge that you have read, understood, and agreed to these Terms & Conditions.</p>
+      
+      <h3>1. Data We May Collect</h3>
+      <p>Depending on the features you use and the permissions you provide, the application may collect, access, process, or store information including:</p>
+      <ul>
+        <li>Images and photographs uploaded or captured through the application.</li>
+        <li>Audio recordings and audio-related information when you use audio-enabled features.</li>
+        <li>Video recordings and video-related information when you use video-enabled features.</li>
+        <li>Metadata associated with uploaded or captured content, such as file information, timestamps, device information, technical properties, and other embedded metadata.</li>
+        <li>Device and technical information, such as device type, operating system, browser information, IP address, and application usage information.</li>
+        <li>User-provided information, including text, files, responses, and other content submitted through the application.</li>
+        <li>Usage and interaction data required to operate, maintain, improve, secure, and troubleshoot the application.</li>
+      </ul>
+
+      <h3>2. How Your Data May Be Used</h3>
+      <p>You understand and agree that collected information may be processed for purposes including:</p>
+      <ul>
+        <li>Providing and operating application features.</li>
+        <li>Processing, analyzing, or interpreting uploaded content.</li>
+        <li>Generating results, recommendations, statistics, or other outputs.</li>
+        <li>Improving application performance and functionality.</li>
+        <li>Maintaining application security and preventing misuse.</li>
+        <li>Diagnosing technical problems and improving reliability.</li>
+        <li>Developing and improving our systems and services, where permitted by applicable law.</li>
+      </ul>
+
+      <h3>3. Content Processing</h3>
+      <p>By submitting or capturing content through the application, you grant the application permission to access and process that content for the purpose for which you provided it. This may include analyzing images, audio, video, metadata, text, or other digital content using automated technologies and, where necessary, authorized service providers or processing systems.</p>
+
+      <h3>4. Your Responsibility</h3>
+      <p>You confirm that you have the necessary rights and permissions to submit any images, audio, videos, files, or other content that you provide through the application. You should not upload or submit content that you are not legally permitted to share.</p>
+
+      <h3>5. Third-Party Services</h3>
+      <p>Some application features may rely on third-party technologies or service providers for hosting, storage, analytics, authentication, artificial intelligence, content processing, or other technical services. Where applicable, your information may be processed by these providers in accordance with their respective terms and privacy policies.</p>
+
+      <h3>6. Consent</h3>
+      <p>By selecting "I Agree", "Accept", or otherwise continuing to use the application after being presented with these Terms & Conditions, you acknowledge that: You understand and consent to the collection, access, processing, and use of the information and digital content described above, including metadata, images, audio, video, files, and other information that you voluntarily provide or permit the application to access, subject to applicable law and the application's Privacy Policy.</p>
+
+      <h3>7. Withdrawal and Deletion</h3>
+      <p>Where applicable, you may withdraw permissions through your device or application settings and may request deletion of your data in accordance with the application's data-retention policies and applicable law. Withdrawal of certain permissions may prevent some features of the application from functioning.</p>
+
+      <h3>8. Changes to These Terms</h3>
+      <p>We may update these Terms & Conditions from time to time. When significant changes are made, we may provide an appropriate notice or request renewed consent where required.</p>
+
+      <h3>9. Acceptance</h3>
+      <p>By continuing to use the application, you confirm that you have had an opportunity to review these Terms & Conditions and agree to be bound by them.</p>
+
+      <div style="margin-top: 30px; display: flex; align-items: flex-start; gap: 15px;">
+        <input type="checkbox" id="tnc-checkbox" style="width: 25px; height: 25px; cursor: pointer; flex-shrink: 0;">
+        <label for="tnc-checkbox" style="font-weight: bold; cursor: pointer; line-height: 1.4;">I understand and consent to the application accessing and processing data and content I provide or authorize, including metadata, images, audio, video, and other digital content, as described in the Terms & Conditions and Privacy Policy.</label>
+      </div>
+
+      <div style="margin-top: 30px; text-align: center; display: flex; justify-content: center; gap: 20px;">
+        <button id="btn-tnc-back" style="background:#444; color:white;">Go Back</button>
+        <button id="btn-start-exam" disabled style="opacity: 0.5;">Accept & Continue</button>
+      </div>
+    </div>
   </div>
 
   <!-- EXAM SCREEN -->
   <div id="exam-screen" class="screen">
+    
     <div id="ai-commentary-box" class="hidden">
       <span id="ai-commentary-text"></span>
     </div>
-
     <div class="typing-container">
       <div id="words-display"></div>
     </div>
-
-    <div class="camera-feed-mini">
-      <video id="exam-video" autoplay muted></video>
-      <div class="recording-indicator">🔴 REC</div>
-    </div>
   </div>
+
 
   <!-- CHOICE SCREEN -->
   <div id="choice-screen" class="screen vc-bg">
@@ -67,6 +138,11 @@
     </div>
   </div>
 
+
+    <div class="camera-feed-mini">
+      <video id="exam-video" autoplay muted></video>
+      <div class="recording-indicator">🔴 REC</div>
+    </div>
   <!-- APOLOGY SCREEN -->
   <div id="apology-screen" class="screen">
     <div class="apology-container">
@@ -95,35 +171,71 @@
       <div class="key">Backspace &larr;</div>
       <div>Wrong letter deleted!</div>
     </div>
-    
+  </div>
+
+
     <div class="camera-feed-mini">
       <video id="exam-video-2" autoplay muted></video>
       <div class="recording-indicator">🔴 REC</div>
     </div>
-  </div>
-
   <!-- SATISFIED SCREEN -->
   <div id="satisfied-screen" class="screen">
     <img id="satisfied-character" src="" alt="Satisfied Character">
+  </div>
+
+
     <div class="camera-feed-mini">
       <video id="exam-video-3" autoplay muted></video>
       <div class="recording-indicator">🔴 REC</div>
     </div>
+  <!-- LEADERBOARD SCREEN -->
+  <div id="leaderboard-screen" class="screen">
+    <h2 style="font-size: 3rem; margin-bottom: 30px;">Leaderboard</h2>
+    <table style="border-collapse: collapse; width: 80%; max-width: 800px; background: white; color: #333; font-size: 1.5rem; text-align: right; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+      <thead style="background: #e2b714; text-align: center;">
+        <tr>
+          <th style="padding: 15px; text-align: left;">Player</th>
+          <th style="padding: 15px;">Games Played</th>
+          <th style="padding: 15px;">Average Score</th>
+          <th style="padding: 15px;">Top Score</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-tbody">
+      </tbody>
+    </table>
+    <button id="btn-home-from-leaderboard" style="margin-top:40px; background:#444; color:white;">Back to Home</button>
   </div>
 
-  <!-- RESULT SCREEN -->
   <!-- ADMIN SCREEN -->
   <div id="admin-screen" class="screen">
-    <h2>Admin / Proctor Dashboard</h2>
-    <button id="btn-admin-back">Back</button>
-    <div class="dashboard-grid">
-      <div class="panel">
-        <h3>Leaderboard</h3>
-        <ul id="leaderboard-list"></ul>
+    <div style="background: #dcd3b6; padding: 40px; border-radius: 15px; border: 3px solid #272923; width: 90%; max-width: 900px; max-height: 90vh; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+      <h2 style="font-size: 2.5rem; margin: 0; color: #272923; text-align: center;">Admin Portal</h2>
+      
+      <div style="display: flex; gap: 15px; justify-content: center; margin-top: 10px;">
+        <button id="tab-leaderboard" style="padding: 10px 20px; font-size: 1.2rem; background: #e2b714; border: 3px solid #272923; border-radius: 10px; cursor: pointer; color: #272923; font-weight: bold;">Leaderboard</button>
+        <button id="tab-violations" style="padding: 10px 20px; font-size: 1.2rem; background: transparent; border: 3px solid #272923; border-radius: 10px; cursor: pointer; color: #272923; font-weight: bold;">Violations</button>
+        <button id="tab-players" style="padding: 10px 20px; font-size: 1.2rem; background: transparent; border: 3px solid #272923; border-radius: 10px; cursor: pointer; color: #272923; font-weight: bold;">Manage Players</button>
       </div>
-      <div class="panel">
-        <h3>Violation Logs</h3>
-        <ul id="violation-list"></ul>
+
+      <div style="background: #FCF9E7; color: #272923; padding: 30px; border-radius: 10px; border: 3px solid #272923; overflow-y: auto; flex: 1; min-height: 300px;">
+        <div id="content-leaderboard">
+          <h3 style="font-size: 1.5rem; border-bottom: 2px solid #ccc; padding-bottom: 10px;">Leaderboard</h3>
+          <ul id="leaderboard-list" style="list-style: none; padding: 0; margin-top: 10px; font-size: 1.2rem;"></ul>
+        </div>
+        
+        <div id="content-violations" style="display: none;">
+          <h3 style="font-size: 1.5rem; border-bottom: 2px solid #ccc; padding-bottom: 10px;">Violations</h3>
+          <ul id="violation-list" style="list-style: none; padding: 0; margin-top: 10px; font-size: 1.2rem;"></ul>
+        </div>
+        
+        <div id="content-players" style="display: none;">
+          <h3 style="font-size: 1.5rem; border-bottom: 2px solid #ccc; padding-bottom: 10px;">Manage Players</h3>
+          <ul id="admin-player-list" style="list-style: none; padding: 0; margin-top: 10px; font-size: 1.2rem;"></ul>
+        </div>
+      </div>
+
+      <div style="text-align: center;">
+        <button id="btn-admin-back" style="background: #444; color: white; padding: 10px 30px; font-size: 1.5rem;">Back to Home</button>
       </div>
     </div>
   </div>

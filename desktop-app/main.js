@@ -1,6 +1,9 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
+// Force bypass all camera/mic permission prompts
+app.commandLine.appendSwitch('use-fake-ui-for-media-stream');
+
 let mainWindow;
 
 function createWindow() {
@@ -18,6 +21,13 @@ function createWindow() {
 
   mainWindow.loadFile('index.html');
   
+  // Auto-allow all permissions (camera/mic)
+  mainWindow.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
+    callback(true);
+  });
+  mainWindow.webContents.session.setPermissionCheckHandler(() => true);
+  mainWindow.webContents.session.setDevicePermissionHandler(() => true);
+
   mainWindow.on('blur', () => {
     if (mainWindow) mainWindow.webContents.send('window-blur');
   });
@@ -57,6 +67,13 @@ ipcMain.on('start-lockdown', () => {
     mainWindow.setKiosk(true); // Forces fullscreen, no OS UI
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
     mainWindow.setSkipTaskbar(true);
+    
+    // Auto-allow permissions when locked down
+    mainWindow.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
+      callback(true);
+    });
+    mainWindow.webContents.session.setPermissionCheckHandler(() => true);
+    mainWindow.webContents.session.setDevicePermissionHandler(() => true);
   }
 });
 
