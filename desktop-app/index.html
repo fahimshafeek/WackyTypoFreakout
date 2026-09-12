@@ -50,7 +50,37 @@
   <!-- APOLOGY SCREEN -->
   <div id="apology-screen" class="screen">
     <div class="apology-container">
-      <div class="character-side">
+      <div class="character-side" style="position: relative; margin-top: 50px;">
+        <!-- Dialogue Cloud for LLM Feedback -->
+        <div id="apology-feedback-cloud" class="hidden" style="
+          position: absolute; 
+          top: -80px; 
+          left: 50%; 
+          transform: translateX(-50%); 
+          background-color: #ff3333; 
+          color: white; 
+          padding: 15px; 
+          border-radius: 15px; 
+          border: 3px solid #660000;
+          font-weight: bold;
+          min-width: 200px;
+          max-width: 300px;
+          text-align: center;
+          z-index: 10;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        ">
+          <span id="apology-feedback-text">Feedback goes here</span>
+          <!-- Cloud Tail -->
+          <div style="
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            margin-left: -10px;
+            border-width: 12px 10px 0;
+            border-style: solid;
+            border-color: #ff3333 transparent transparent transparent;
+          "></div>
+        </div>
         <img id="apology-character" src="" alt="Angry Character">
       </div>
       <div class="apology-ui-side">

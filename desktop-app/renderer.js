@@ -250,6 +250,7 @@ async function triggerApology(expectedLetter, typedLetter) {
   document.getElementById('apology-error-letter').textContent = lowerTyped;
   document.getElementById('apology-letter-name').textContent = upperTyped;
   document.getElementById('apology-letter-name-2').textContent = upperTyped;
+  document.getElementById('apology-feedback-cloud').classList.add('hidden');
   
   const apologyInput = document.getElementById('apology-input');
   apologyInput.value = '';
@@ -289,12 +290,15 @@ document.getElementById('apology-input').addEventListener('keydown', (e) => {
 });
 
 async function finishApology() {
+  const btn = document.getElementById('btn-submit-apology');
+  if (btn.disabled) return;
+  
   const val = document.getElementById('apology-input').value.trim();
   if (val.length === 0) return; 
   
-  const btn = document.getElementById('btn-submit-apology');
   btn.textContent = 'WAITING FOR AI JUDGE...';
   btn.disabled = true;
+  document.getElementById('apology-feedback-cloud').classList.add('hidden');
   
   try {
     await fetch(`${API_BASE}/incident/${taIncidentId}/apology`, {
@@ -370,19 +374,42 @@ async function initTypeAndAtone() {
 function handleTaWsEvent(msg) {
   if (msg.event === 'apology_verdict') {
     const btn = document.getElementById('btn-submit-apology');
+    const cloud = document.getElementById('apology-feedback-cloud');
+    const cloudText = document.getElementById('apology-feedback-text');
+    
     if (msg.data.verdict === 'fail') {
       if (msg.data.attempts_remaining > 0) {
-        btn.textContent = `REJECTED! ${msg.data.feedback} (${msg.data.attempts_remaining} tries left)`;
-        btn.disabled = false;
-        btn.style.backgroundColor = 'red';
         
-        // Reset button after 3 seconds
-        setTimeout(() => {
-          if (btn.style.backgroundColor === 'red') {
-            btn.textContent = 'TYPE APOLOGY';
-            btn.style.backgroundColor = '';
-          }
-        }, 3000);
+        const apologyText = document.getElementById('apology-input').value;
+        const wordCount = apologyText.split(/\s+/).filter(w => w.length > 0).length;
+        
+        if (wordCount >= 50) {
+          cloudText.textContent = msg.data.feedback;
+          cloud.classList.remove('hidden');
+          
+          btn.textContent = `REJECTED! (${msg.data.attempts_remaining} tries left)`;
+          btn.disabled = false;
+          btn.style.backgroundColor = 'red';
+          
+          setTimeout(() => {
+            if (btn.style.backgroundColor === 'red') {
+              btn.textContent = 'TYPE APOLOGY';
+              btn.style.backgroundColor = '';
+              cloud.classList.add('hidden');
+            }
+          }, 8000); 
+        } else {
+          btn.textContent = `REJECTED! ${msg.data.feedback} (${msg.data.attempts_remaining} tries left)`;
+          btn.disabled = false;
+          btn.style.backgroundColor = 'red';
+          
+          setTimeout(() => {
+            if (btn.style.backgroundColor === 'red') {
+              btn.textContent = 'TYPE APOLOGY';
+              btn.style.backgroundColor = '';
+            }
+          }, 3000);
+        }
       } else {
         btn.textContent = "MAX ATTEMPTS EXHAUSTED. FORCED DARE. (GAME OVER)";
         setTimeout(() => {
@@ -401,7 +428,6 @@ function handleTaWsEvent(msg) {
           showScreen('exam');
           renderWords();
           
-          // Resume timer
           timerInterval = setInterval(() => {
             timer--;
             document.getElementById('timer').textContent = `${timer}s`;
