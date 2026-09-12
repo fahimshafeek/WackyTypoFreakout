@@ -385,7 +385,7 @@ function handleTaWsEvent(msg) {
         const apologyText = document.getElementById('apology-input').value;
         const wordCount = apologyText.split(/\s+/).filter(w => w.length > 0).length;
         
-        if (wordCount >= 50) {
+        if (wordCount >= 30) {
           cloudText.textContent = msg.data.feedback;
           cloud.classList.remove('hidden');
           

@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     n8n_sincerity_webhook_url: str = "http://localhost:5678/webhook/sincerity-check"
     n8n_request_timeout_seconds: int = 30
     
-    min_apology_words: int = 50
+    min_apology_words: int = 30
     sincerity_pass_threshold: int = 40
     truth_max_attempts_per_incident: int = 3
     dare_base_crank_count: int = 15
