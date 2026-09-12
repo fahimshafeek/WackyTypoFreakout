@@ -118,6 +118,7 @@ function startExam() {
   
   document.getElementById('timer').textContent = `${timer}s`;
   document.getElementById('global-exam-header').classList.remove('hidden');
+  initTypeAndAtone();
   showScreen('exam');
   renderWords();
 
@@ -236,8 +237,10 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-function triggerApology(expectedLetter, typedLetter) {
+async function triggerApology(expectedLetter, typedLetter) {
   isApologizing = true;
+  clearInterval(timerInterval); // Pause the timer!
+  
   const upperExpected = expectedLetter.toUpperCase();
   const lowerTyped = typedLetter.toLowerCase();
   
@@ -249,8 +252,30 @@ function triggerApology(expectedLetter, typedLetter) {
   const apologyInput = document.getElementById('apology-input');
   apologyInput.value = '';
   
+  const btn = document.getElementById('btn-submit-apology');
+  btn.textContent = 'TYPE APOLOGY';
+  btn.style.backgroundColor = '';
+  btn.disabled = false;
+  
   showScreen('apology');
   apologyInput.focus();
+  
+  try {
+    const res = await fetch(`${API_BASE}/session/${taSessionId}/backspace`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ letter: expectedLetter.toLowerCase(), position: 0 })
+    });
+    const data = await res.json();
+    taIncidentId = data.incident_id;
+    
+    // Automatically choose truth
+    await fetch(`${API_BASE}/incident/${taIncidentId}/choice`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ choice: 'truth' })
+    });
+  } catch(e) { console.error(e); }
 }
 
 document.getElementById('btn-submit-apology').addEventListener('click', finishApology);
@@ -261,22 +286,21 @@ document.getElementById('apology-input').addEventListener('keydown', (e) => {
   }
 });
 
-function finishApology() {
+async function finishApology() {
   const val = document.getElementById('apology-input').value.trim();
   if (val.length === 0) return; 
   
-  const upperLetter = document.getElementById('apology-letter-name').textContent;
+  const btn = document.getElementById('btn-submit-apology');
+  btn.textContent = 'WAITING FOR AI JUDGE...';
+  btn.disabled = true;
   
-  document.getElementById('satisfied-character').src = `./assets/alphabets/${upperLetter}-satisfied.png`;
-  showScreen('satisfied');
-  
-  setTimeout(() => {
-    if (timer > 0 && isExamActive) {
-      isApologizing = false;
-      showScreen('exam');
-      renderWords();
-    }
-  }, 1500);
+  try {
+    await fetch(`${API_BASE}/incident/${taIncidentId}/apology`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: val })
+    });
+  } catch(e) { console.error(e); }
 }
 
 function endExam() {
@@ -316,4 +340,68 @@ function updateAdminView() {
   allViolations.slice().reverse().forEach(v => {
     vl.innerHTML += `<li>[${v.timestamp}] <strong>${v.player}</strong>: <span style="color:var(--error)">${v.type} (${v.severity})</span></li>`;
   });
+}
+
+
+// ==========================================
+// TYPE & ATONE: BACKEND INTEGRATION
+// ==========================================
+const API_BASE = 'http://localhost:8000/api';
+let taSessionId = null;
+let taIncidentId = null;
+let taWs = null;
+
+async function initTypeAndAtone() {
+  try {
+    const res = await fetch(`${API_BASE}/session/start`, { method: 'POST' });
+    const data = await res.json();
+    taSessionId = data.session_id;
+    console.log("Type & Atone Session Started:", taSessionId);
+    
+    taWs = new WebSocket(`ws://localhost:8000/ws/session/${taSessionId}`);
+    taWs.onmessage = (e) => handleTaWsEvent(JSON.parse(e.data));
+  } catch (err) {
+    console.error("Failed to initialize Type & Atone backend:", err);
+  }
+}
+
+function handleTaWsEvent(msg) {
+  if (msg.event === 'apology_verdict') {
+    const btn = document.getElementById('btn-submit-apology');
+    if (msg.data.verdict === 'fail') {
+      if (msg.data.attempts_remaining > 0) {
+        btn.textContent = `REJECTED! ${msg.data.feedback} (${msg.data.attempts_remaining} tries left)`;
+        btn.disabled = false;
+        btn.style.backgroundColor = 'red';
+      } else {
+        btn.textContent = "MAX ATTEMPTS EXHAUSTED. FORCED DARE. (GAME OVER)";
+        setTimeout(() => {
+            alert("DARE PENDING. Hardware not connected. Terminating Exam.");
+            endExam();
+        }, 2000);
+      }
+    } else {
+      btn.textContent = `ACCEPTED! Score: ${msg.data.sincerity_score}`;
+      const upperLetter = document.getElementById('apology-letter-name').textContent;
+      document.getElementById('satisfied-character').src = `./assets/alphabets/${upperLetter}-satisfied.png`;
+      showScreen('satisfied');
+      setTimeout(() => {
+        if (timer > 0 && isExamActive) {
+          isApologizing = false;
+          showScreen('exam');
+          renderWords();
+          
+          // Resume timer
+          timerInterval = setInterval(() => {
+            timer--;
+            document.getElementById('timer').textContent = `${timer}s`;
+            if (timer <= 0) endExam();
+          }, 1000);
+        }
+      }, 2000);
+    }
+  } else if (msg.event === 'error') {
+     document.getElementById('btn-submit-apology').textContent = `SYSTEM ERROR: ${msg.data.message}`;
+     document.getElementById('btn-submit-apology').disabled = false;
+  }
 }
