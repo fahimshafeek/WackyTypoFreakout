@@ -173,6 +173,7 @@ let timer = 60; // Increased to 60s since apologizing takes time
 let timerInterval;
 let isExamActive = false;
 let isApologizing = false;
+let currentWordHadIncident = false;
 
 class ReactionCapture {
     constructor(videoEl) {
@@ -495,6 +496,11 @@ document.addEventListener('keydown', (e) => {
         return;
       }
       
+      if (currentWordHadIncident) {
+        triggerCatAnimation();
+        currentWordHadIncident = false;
+      }
+      
       // count correct chars for WPM
       for(let i=0; i<Math.min(currentWordInput.length, targetWord.length); i++) {
         if(currentWordInput[i] === targetWord[i]) correctCharsCount++;
@@ -520,6 +526,7 @@ let currentIncidentTyped = null;
 const incidentAudio = new Audio('./assets/audio/fahhhhh.mp3');
 
 async function triggerIncident(expectedLetter, typedLetter) {
+  currentWordHadIncident = true;
   incidentAudio.currentTime = 0;
   incidentAudio.play().catch(e => console.error(e));
   
@@ -865,3 +872,54 @@ document.addEventListener("results:keep-typing", () => {
     startExam(); 
     showScreen('exam'); 
 });
+
+
+function triggerCatAnimation() {
+    const catNum = Math.floor(Math.random() * 8) + 1;
+    const catImg = document.createElement('img');
+    catImg.src = `./assets/cats/cat${catNum}.png`;
+    catImg.style.position = 'fixed';
+    catImg.style.zIndex = '10000';
+    catImg.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+    
+    // Avoid middle (40-60%)
+    const isLeft = Math.random() > 0.5;
+    const offsetPercent = isLeft ? (Math.random() * 30 + 5) : (Math.random() * 30 + 65);
+    catImg.style.left = `${offsetPercent}%`;
+    catImg.style.width = '250px';
+
+    const isTop = Math.random() > 0.5;
+    if (isTop) {
+        catImg.style.top = '0px';
+        catImg.style.transform = 'translateY(-100%) scaleY(-1)';
+    } else {
+        catImg.style.bottom = '0px';
+        catImg.style.transform = 'translateY(100%)';
+    }
+
+    document.body.appendChild(catImg);
+    
+    void catImg.offsetWidth; // Reflow
+
+    if (isTop) {
+        catImg.style.transform = 'translateY(0) scaleY(-1)';
+    } else {
+        catImg.style.transform = 'translateY(0)';
+    }
+
+    setTimeout(() => {
+        const crickets = new Audio('./assets/audio/crickets.mp3');
+        crickets.play().catch(e => console.error(e));
+        
+        crickets.onended = () => {
+            if (isTop) {
+                catImg.style.transform = 'translateY(-100%) scaleY(-1)';
+            } else {
+                catImg.style.transform = 'translateY(100%)';
+            }
+            setTimeout(() => {
+                catImg.remove();
+            }, 500);
+        };
+    }, 500);
+}
