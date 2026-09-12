@@ -29,3 +29,6 @@
 [2026-09-12T12:47:39Z] Added automatic seeding of the 26 letters into the SQLite database on startup in backend/src/main.py.
 [2026-09-12T12:47:52Z] Added dev override endpoint to backend/src/api/incidents.py for bypassing incidents during demos.
 [2026-09-12T12:48:09Z] Verified server starts properly with Uvicorn. All Phase 1 requirements from the README are complete.
+[2026-09-12T12:48:19Z] Initialized git repository and committed all Phase 1 files.
+[2026-09-12T13:20:33Z] Added docker-compose.yml to the root directory for self-hosted n8n container, mapping it to port 5679 to avoid conflicts with existing setup.
+[2026-09-12T13:20:43Z] Copied sincerity-check.json to /workflows folder to make it easily accessible for manual import if needed.
