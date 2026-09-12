@@ -397,7 +397,6 @@ function handleTaWsEvent(msg) {
             if (btn.style.backgroundColor === 'red') {
               btn.textContent = 'TYPE APOLOGY';
               btn.style.backgroundColor = '';
-              cloud.classList.add('hidden');
             }
           }, 8000); 
         } else {
