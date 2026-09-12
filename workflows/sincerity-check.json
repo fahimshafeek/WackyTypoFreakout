@@ -1,10 +1,12 @@
 [
   {
+    "updatedAt": "2026-09-12T13:54:53.528Z",
+    "createdAt": "2026-09-12T13:32:42.777Z",
     "id": "sincerity-check-ad626bb8",
     "name": "Sincerity Check",
-    "active": false,
-    "createdAt": "2026-09-12T13:32:42.777774Z",
-    "updatedAt": "2026-09-12T13:32:42.777834Z",
+    "description": null,
+    "active": true,
+    "isArchived": false,
     "nodes": [
       {
         "parameters": {
@@ -18,14 +20,15 @@
         "type": "n8n-nodes-base.webhook",
         "typeVersion": 2.1,
         "position": [
-          200,
-          300
-        ]
+          208,
+          304
+        ],
+        "webhookId": "b447a11a-3d47-41a1-9d13-da5314b0ead6"
       },
       {
         "parameters": {
           "mode": "runOnceForEachItem",
-          "jsCode": "\nconst body = $input.item.json.body || {};\nconst text = body.apology_text || '';\nconst minWords = body.min_words || 50;\nconst threshold = body.threshold || 70;\nconst letter = body.letter || 'Unknown';\n\nconst wordCount = text.split(/\\s+/).filter(w => w.length > 0).length;\n\nconst prompt = `You are the Sincerity Warden, a whimsical but fair judge in a typing-test game.\nA player just deleted the letter \"${letter}\" by pressing Backspace, and must now\natone by writing a genuine, thoughtful apology of at least ${minWords} words\naddressed directly to that letter.\n\nEvaluate the apology below strictly on:\n1. Genuine tone and effort.\n2. Coherence and relevance to apologizing to the letter \"${letter}\".\n3. Absence of filler, copy-pasted repetition, or nonsense text used purely to\n   hit the word count.\n\nRespond with ONLY a JSON object matching the required schema, no other text.\nA sincerity_score of ${threshold} or above must map to verdict \"pass\"; below it,\n\"fail\". Be encouraging but do not pass apologies that are clearly insincere,\nnonsensical, or padded filler.\n\nApology to evaluate:\n\"\"\"\n${text}\n\"\"\"`;\n\n$input.item.json.wordCount = wordCount;\n$input.item.json.minWords = minWords;\n$input.item.json.prompt = prompt;\nreturn $input.item;\n            "
+          "jsCode": "\nconst body = $input.item.json.body || {};\nconst text = body.apology_text || '';\nconst minWords = body.min_words || 50;\nconst threshold = body.threshold || 70;\nconst letter = body.letter || 'Unknown';\n\nconst wordCount = text.split(/\\\\s+/).filter(w => w.length > 0).length;\n\nconst prompt = `You ARE the letter \"${letter}\" in a typing game. A player just tried to DELETE you with Backspace and now must apologize TO YOU directly.\n\nYou are hurt, offended, and judging their apology. Respond IN CHARACTER as the letter \"${letter}\" \u2014 use first person (\"I\", \"me\").\n\nRules:\n- sincerity_score 0-100. >= ${threshold} = verdict \"pass\", below = \"fail\"\n- If they used filler, repetition, or nonsense to pad words: FAIL and call them out\n- If genuine and heartfelt: PASS\n- feedback must be 1-2 SHORT sentences MAX, spoken as the letter \"${letter}\" with personality (frustrated, disappointed, or grudgingly accepting)\n\nExamples of good feedback:\n- \"Are you kidding me? You just copy-pasted the same garbage five times. I deserve better than this.\"\n- \"Hmph... fine. That actually made me feel a little appreciated. You may continue.\"\n- \"That was the most hollow, soulless excuse for an apology I have ever read. Try harder.\"\n\nApology to judge:\n\"\"\"\n${text}\n\"\"\"`;\n\n$input.item.json.wordCount = wordCount;\n$input.item.json.minWords = minWords;\n$input.item.json.prompt = prompt;\nreturn $input.item;\n"
         },
         "id": "343f8063-3d2a-4caf-a547-950f573da988",
         "name": "Prepare & Validate",
@@ -33,7 +36,7 @@
         "typeVersion": 2,
         "position": [
           400,
-          300
+          304
         ]
       },
       {
@@ -42,7 +45,8 @@
             "options": {
               "caseSensitive": true,
               "leftValue": "",
-              "typeValidation": "strict"
+              "typeValidation": "strict",
+              "version": 3
             },
             "conditions": [
               {
@@ -64,8 +68,8 @@
         "type": "n8n-nodes-base.if",
         "typeVersion": 2.3,
         "position": [
-          600,
-          300
+          608,
+          304
         ]
       },
       {
@@ -80,7 +84,7 @@
         "typeVersion": 1.1,
         "position": [
           800,
-          500
+          512
         ]
       },
       {
@@ -98,7 +102,7 @@
         "typeVersion": 4.2,
         "position": [
           800,
-          100
+          112
         ]
       },
       {
@@ -111,8 +115,8 @@
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
         "position": [
-          1000,
-          100
+          1008,
+          112
         ]
       },
       {
@@ -127,7 +131,7 @@
         "typeVersion": 1.1,
         "position": [
           1200,
-          100
+          112
         ]
       }
     ],
@@ -196,7 +200,42 @@
       }
     },
     "settings": {
-      "executionOrder": "v1"
+      "executionOrder": "v1",
+      "binaryMode": "separate"
+    },
+    "staticData": null,
+    "meta": null,
+    "nodeGroups": [],
+    "pinData": {},
+    "versionId": "202582b2-cee3-4efe-b210-55ff1b2de97b",
+    "activeVersionId": "202582b2-cee3-4efe-b210-55ff1b2de97b",
+    "versionCounter": 2,
+    "triggerCount": 1,
+    "sourceWorkflowId": null,
+    "tags": [],
+    "shared": [
+      {
+        "updatedAt": "2026-09-12T13:32:52.064Z",
+        "createdAt": "2026-09-12T13:32:52.064Z",
+        "role": "workflow:owner",
+        "workflowId": "sincerity-check-ad626bb8",
+        "projectId": "vhp8MMz5RQ9LoWwD",
+        "project": {
+          "updatedAt": "2026-09-10T15:02:39.751Z",
+          "createdAt": "2026-09-10T13:20:16.924Z",
+          "id": "vhp8MMz5RQ9LoWwD",
+          "name": "Fahim Shafeek <fahimshafeek@gmail.com>",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "customTelemetryTags": [],
+          "creatorId": "e5dab176-4f5d-4f4b-8e5d-0c4034a11530"
+        }
+      }
+    ],
+    "versionMetadata": {
+      "name": "Version 202582b2",
+      "description": ""
     }
   }
 ]
