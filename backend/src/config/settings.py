@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     n8n_request_timeout_seconds: int = 30
     
     min_apology_words: int = 50
-    sincerity_pass_threshold: int = 70
+    sincerity_pass_threshold: int = 40
     truth_max_attempts_per_incident: int = 3
     dare_base_crank_count: int = 15
     dare_crank_increment: int = 10
