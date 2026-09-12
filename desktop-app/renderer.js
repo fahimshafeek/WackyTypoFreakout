@@ -1,16 +1,21 @@
 const screens = {
-  login: document.getElementById('login-screen'),
-  deviceCheck: document.getElementById('device-check-screen'),
+  intro: document.getElementById('intro-screen'),
+  signin: document.getElementById('signin-screen'),
+  choosePlayer: document.getElementById('choose-player-screen'),
+  tnc: document.getElementById('tnc-screen'),
   exam: document.getElementById('exam-screen'),
   apology: document.getElementById('apology-screen'),
   satisfied: document.getElementById('satisfied-screen'),
+  leaderboard: document.getElementById('leaderboard-screen'),
   result: document.getElementById('result-screen'),
   admin: document.getElementById('admin-screen')
 };
 
 function showScreen(name) {
-  Object.values(screens).forEach(s => s.classList.remove('active'));
-  screens[name].classList.add('active');
+  Object.values(screens).forEach(s => {
+    if (s) s.classList.remove('active');
+  });
+  if (screens[name]) screens[name].classList.add('active');
 }
 
 let playerName = '';
@@ -19,12 +24,86 @@ let violations = [];
 let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
 let allViolations = JSON.parse(localStorage.getItem('allViolations')) || [];
 
-document.getElementById('btn-login').addEventListener('click', () => {
+document.getElementById('btn-show-signin').addEventListener('click', () => showScreen('signin'));
+document.getElementById('btn-show-players').addEventListener('click', () => {
+  populatePlayerList();
+  showScreen('choosePlayer');
+});
+document.getElementById('btn-back-intro-1').addEventListener('click', () => showScreen('intro'));
+document.getElementById('btn-back-intro-2').addEventListener('click', () => showScreen('intro'));
+
+document.getElementById('btn-login-next').addEventListener('click', () => {
   const name = document.getElementById('player-name').value.trim();
   if (!name) return alert('Enter name');
   playerName = name;
-  showScreen('deviceCheck');
-  startDeviceCheck();
+  showScreen('tnc');
+});
+
+function populatePlayerList() {
+  const container = document.getElementById('player-list-container');
+  container.innerHTML = '';
+  // Extract unique players
+  const players = [...new Set(leaderboard.map(e => e.player))];
+  if (players.length === 0) {
+    container.innerHTML = '<p>No players yet. Sign in first!</p>';
+    return;
+  }
+  players.forEach(p => {
+    const btn = document.createElement('button');
+    btn.textContent = p;
+    btn.style.padding = '10px';
+    btn.style.background = 'white';
+    btn.style.color = '#333';
+    btn.style.border = '2px solid #333';
+    btn.style.borderRadius = '8px';
+    btn.style.cursor = 'pointer';
+    btn.addEventListener('click', () => {
+      playerName = p;
+      startExamFromPlayerSelect();
+    });
+    container.appendChild(btn);
+  });
+}
+
+async function startExamFromPlayerSelect() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    startLockdown();
+    startExam();
+  } catch (err) {
+    alert("Camera/Microphone permission is required to proceed.");
+  }
+}
+
+const tncCheckbox = document.getElementById('tnc-checkbox');
+const btnStartExam = document.getElementById('btn-start-exam');
+
+tncCheckbox.addEventListener('change', (e) => {
+  if (e.target.checked) {
+    btnStartExam.disabled = false;
+    btnStartExam.style.opacity = '1';
+  } else {
+    btnStartExam.disabled = true;
+    btnStartExam.style.opacity = '0.5';
+  }
+});
+
+btnStartExam.addEventListener('click', async () => {
+  btnStartExam.textContent = "Starting...";
+  btnStartExam.disabled = true;
+  
+  try {
+    // Start background capturing
+    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    
+    startLockdown();
+    startExam();
+  } catch (err) {
+    alert("Camera/Microphone permission is required to proceed.");
+    btnStartExam.textContent = "Accept & Continue";
+    btnStartExam.disabled = false;
+    console.error(err);
+  }
 });
 
 document.getElementById('btn-admin-view').addEventListener('click', () => {
@@ -32,32 +111,6 @@ document.getElementById('btn-admin-view').addEventListener('click', () => {
   showScreen('admin');
 });
 document.getElementById('btn-admin-back').addEventListener('click', () => showScreen('login'));
-
-async function startDeviceCheck() {
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    document.getElementById('preview-video').srcObject = stream;
-    document.getElementById('cam-status').textContent = 'Connected';
-    document.getElementById('cam-status').className = 'status-ok';
-    document.getElementById('mic-status').textContent = 'Connected';
-    document.getElementById('mic-status').className = 'status-ok';
-    document.getElementById('btn-start-exam').disabled = false;
-  } catch (err) {
-    document.getElementById('cam-status').textContent = 'Failed / Denied';
-    document.getElementById('cam-status').className = 'status-error';
-    document.getElementById('mic-status').textContent = 'Failed / Denied';
-    document.getElementById('mic-status').className = 'status-error';
-    console.error(err);
-  }
-}
-
-document.getElementById('btn-start-exam').addEventListener('click', () => {
-  document.getElementById('exam-video').srcObject = stream;
-  document.getElementById('exam-video-2').srcObject = stream;
-  document.getElementById('exam-video-3').srcObject = stream;
-  startLockdown();
-  startExam();
-});
 
 function startLockdown() {
   if (window.electronAPI) {
@@ -333,27 +386,55 @@ function endExam() {
   const wpm = Math.round((correctCharsCount / 5) / activeMinutes);
   
   leaderboard.push({ player: playerName, wpm });
-  leaderboard.sort((a, b) => b.wpm - a.wpm);
   localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
   
-  const accuracy = Math.round((correctCharsCount / Math.max(1, correctCharsCount + (violations.length * 5))) * 100);
+  // Aggregate stats per player
+  const playerStats = {};
+  leaderboard.forEach(entry => {
+    if (!playerStats[entry.player]) {
+      playerStats[entry.player] = { games: 0, totalScore: 0, topScore: 0 };
+    }
+    playerStats[entry.player].games += 1;
+    playerStats[entry.player].totalScore += entry.wpm;
+    if (entry.wpm > playerStats[entry.player].topScore) {
+      playerStats[entry.player].topScore = entry.wpm;
+    }
+  });
 
-  if (window.renderResults) {
-      window.renderResults({
-        wpm: wpm,
-        accuracy: accuracy,
-        apologiesWritten: violations.length,
-        mascotName: document.getElementById('apology-letter-name')?.textContent || 'Z',
-        photos: []
-      });
-  }
+  const tbody = document.getElementById('leaderboard-tbody');
+  tbody.innerHTML = '';
   
-  showScreen('result');
+  // Convert to array and sort by Top Score (or Average)
+  const sortedPlayers = Object.keys(playerStats).map(p => ({
+    name: p,
+    games: playerStats[p].games,
+    avg: (playerStats[p].totalScore / playerStats[p].games).toFixed(1),
+    top: playerStats[p].topScore
+  })).sort((a, b) => b.top - a.top);
+
+  sortedPlayers.forEach((p, idx) => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #ddd';
+    if (idx % 2 === 0) tr.style.background = '#f9f9f9';
+    tr.innerHTML = `
+      <td style="padding: 15px; text-align: left;">${p.name}</td>
+      <td style="padding: 15px;">${p.games}</td>
+      <td style="padding: 15px;">${p.avg}</td>
+      <td style="padding: 15px; font-weight: bold;">${p.top}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  
+  showScreen('leaderboard');
   if (stream) {
     stream.getTracks().forEach(t => t.stop());
     stream = null;
   }
 }
+
+document.getElementById('btn-home-from-leaderboard').addEventListener('click', () => {
+  showScreen('intro');
+});
 
 
 function updateAdminView() {
