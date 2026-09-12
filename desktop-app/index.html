@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Proctored Typing Exam</title>
   <link rel="stylesheet" href="styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" />
 </head>
 <body>
   
@@ -92,15 +93,6 @@
   </div>
 
   <!-- RESULT SCREEN -->
-  <div id="result-screen" class="screen">
-    <h2>Exam Complete</h2>
-    <div class="stats">
-      <div>WPM: <span id="final-wpm">0</span></div>
-      <div>Violations: <span id="final-violations">0</span></div>
-    </div>
-    <button id="btn-home">Return Home</button>
-  </div>
-
   <!-- ADMIN SCREEN -->
   <div id="admin-screen" class="screen">
     <h2>Admin / Proctor Dashboard</h2>
@@ -118,5 +110,80 @@
   </div>
 
   <script src="renderer.js"></script>
-</body>
+<main id="result-screen" class="results-screen screen">
+
+  <button class="back-home" id="backHomeBtn" type="button" aria-label="Back to home">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H10v-5.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V20h3.5a1 1 0 0 0 1-1v-9"/></svg>
+    <span>Back to<br />Home</span>
+  </button>
+
+  <header class="results-header">
+    <h1 class="results-title">
+      <span class="doodle doodle--l" aria-hidden="true"></span>
+      Typing Session Complete!
+      <span class="doodle doodle--r" aria-hidden="true"></span>
+    </h1>
+    <p class="results-subtitle" id="resultsSubtitle">
+      Not bad! <span id="mascotName">Z</span> accepts your apology!
+    </p>
+  </header>
+
+  <div class="results-body">
+
+    <!-- Three captured moments from the session. Real webcam frames get
+         injected here at runtime -- see script.js / renderResults(). -->
+    <section class="photo-stack" id="photoStack" aria-label="Session snapshots"></section>
+
+    <section class="stats-panel" id="statsPanel" aria-label="Session stats">
+      <div class="stat-row">
+        <span class="stat-icon stat-icon--speed" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16a8 8 0 1 1 16 0"/><path d="M12 16 16 10"/><circle cx="12" cy="16" r="1.4" fill="#1A1A1A" stroke="none"/></svg>
+        </span>
+        <span class="stat-label">WPM</span>
+        <span class="stat-value" id="statWpm">72</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-icon stat-icon--accuracy" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1A1A1A" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.2" fill="#1A1A1A"/></svg>
+        </span>
+        <span class="stat-label">Accuracy</span>
+        <span class="stat-value" id="statAccuracy">96%</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-icon stat-icon--apologies" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linejoin="round"><path d="M7 3h7l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 16h6"/></svg>
+        </span>
+        <span class="stat-label">Apologies<br />Written</span>
+        <span class="stat-value" id="statApologies">8</span>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="results-actions">
+    <button class="btn btn--ghost" id="playAgainBtn" type="button">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1A1A1A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 1 2.6 5.9"/><path d="M4 17v-4h4"/></svg>
+      Play Again
+    </button>
+    <button class="btn btn--solid" id="keepTypingBtn" type="button">
+      <span class="btn__doodle" aria-hidden="true">»</span>
+      Keep Typing
+      <span class="btn__doodle" aria-hidden="true">«</span>
+    </button>
+  </div>
+
+  <footer class="skyline" aria-hidden="true">
+    <img class="skyline__bg" src="assets/skyline.svg" alt="" />
+    <p class="skyline__caption skyline__caption--left">Good typing<br />habits build<br />brighter days
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B9B6AC" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.5 14c1 1.3 2.2 2 3.5 2s2.5-.7 3.5-2" stroke-linecap="round"/><circle cx="9" cy="10" r="1" fill="#B9B6AC" stroke="none"/><circle cx="15" cy="10" r="1" fill="#B9B6AC" stroke="none"/></svg>
+    </p>
+    <p class="skyline__caption skyline__caption--right">Mistakes<br />are part<br />of progress
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="#B9B6AC"><path d="M12 20.5S3.5 15 3.5 9.2C3.5 6.3 5.8 4 8.6 4c1.5 0 2.9.7 3.4 1.9C12.5 4.7 13.9 4 15.4 4c2.8 0 5.1 2.3 5.1 5.2 0 5.8-8.5 11.3-8.5 11.3Z"/></svg>
+    </p>
+    <img class="skyline__mascot" src="assets/mascot.svg" alt="" />
+  </footer>
+
+</main>
 </html>
+<script src="results-script.js"></script>
+</body></html>

@@ -1,0 +1,41 @@
+<svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg">
+  <!-- Original mascot: a relaxed "typing buddy" character sitting on the ledge.
+       Simple rounded body, dot eyes, mitten hands, boot feet, drawn from
+       scratch for this project (not a copy of any third-party character). -->
+
+  <!-- music note (idle/relaxed state) -->
+  <g fill="#1A1A1A">
+    <ellipse cx="214" cy="46" rx="9" ry="7" transform="rotate(-18 214 46)"/>
+    <rect x="221" y="14" width="4" height="36" rx="2"/>
+    <path d="M221 14 Q236 10 236 24 L232 24 Q232 17 221 20 Z"/>
+  </g>
+
+  <!-- dangling legs (behind body) -->
+  <g>
+    <rect x="98" y="150" width="20" height="70" rx="10" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="5"/>
+    <rect x="150" y="150" width="20" height="76" rx="10" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="5"/>
+    <!-- boots -->
+    <path d="M92 214 h34 a10 10 0 0 1 10 10 v6 a6 6 0 0 1 -6 6 h-46 a8 8 0 0 1 -8 -8 v-4 a10 10 0 0 1 10 -10 Z" fill="#F0B23B" stroke="#1A1A1A" stroke-width="5"/>
+    <path d="M144 220 h34 a10 10 0 0 1 10 10 v6 a6 6 0 0 1 -6 6 h-46 a8 8 0 0 1 -8 -8 v-4 a10 10 0 0 1 10 -10 Z" fill="#F0B23B" stroke="#1A1A1A" stroke-width="5"/>
+  </g>
+
+  <!-- body -->
+  <rect x="72" y="70" width="116" height="104" rx="40" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="6"/>
+
+  <!-- arms resting on lap -->
+  <circle cx="70" cy="150" r="18" fill="#F0B23B" stroke="#1A1A1A" stroke-width="5"/>
+  <circle cx="190" cy="150" r="18" fill="#F0B23B" stroke="#1A1A1A" stroke-width="5"/>
+  <rect x="66" y="118" width="18" height="42" rx="9" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="5"/>
+  <rect x="176" y="118" width="18" height="42" rx="9" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="5"/>
+
+  <!-- face: closed, content eyes + small smile -->
+  <g stroke="#1A1A1A" stroke-width="5" stroke-linecap="round" fill="none">
+    <path d="M104 108 q10 -12 20 0"/>
+    <path d="M136 108 q10 -12 20 0"/>
+    <path d="M118 128 q10 8 20 0"/>
+  </g>
+
+  <!-- rosy cheeks -->
+  <circle cx="98" cy="122" r="7" fill="#F0B23B" opacity="0.55"/>
+  <circle cx="162" cy="122" r="7" fill="#F0B23B" opacity="0.55"/>
+</svg>
