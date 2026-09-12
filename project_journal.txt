@@ -61,3 +61,4 @@
 [2026-09-12T22:55:58Z] Removed the 500ms delay on the crickets audio during the cat popup so it plays synchronously with the slide-in animation.
 [2026-09-12T22:58:30Z] Fixed the blank page bug on wrong answers by adding the 'choice-screen' back to the DOM screen mapping dictionary, properly restoring the Vice City Truth or Dare menu flow before the apology screen.
 [2026-09-12T23:00:54Z] Replaced the full incident trigger (fahhhhh + apology menu) on premature spacebar presses with just the crickets.mp3 sound effect. The user must now manually hit backspace to fix the word, which correctly triggers the full apology flow and fahhhhh sound.
+[2026-09-12T23:03:00Z] Unblocked the spacebar progression on typos. Submitting a wrong word now triggers the random cat popup (which carries the crickets audio) and allows the user to continue to the next word instead of forcing a fix.

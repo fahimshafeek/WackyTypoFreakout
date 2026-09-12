@@ -491,15 +491,11 @@ document.addEventListener('keydown', (e) => {
     if (currentWordInput.length > 0) {
       if (currentWordInput !== targetWord) {
         reactionCapture.triggerEvent('Mistyped Space');
-        wrongSpaceAudio.currentTime = 0;
-        wrongSpaceAudio.play().catch(e => console.error(e));
-        return;
-      }
-      
-      if (currentWordHadIncident) {
+        triggerCatAnimation(); // The cat animation handles the crickets audio automatically!
+      } else if (currentWordHadIncident) {
         triggerCatAnimation();
-        currentWordHadIncident = false;
       }
+      currentWordHadIncident = false;
       
       // count correct chars for WPM
       for(let i=0; i<Math.min(currentWordInput.length, targetWord.length); i++) {
@@ -524,7 +520,7 @@ document.addEventListener('keydown', (e) => {
 let currentIncidentExpected = null;
 let currentIncidentTyped = null;
 const incidentAudio = new Audio('./assets/audio/fahhhhh.mp3');
-const wrongSpaceAudio = new Audio('./assets/audio/crickets.mp3');
+
 
 async function triggerIncident(expectedLetter, typedLetter) {
   currentWordHadIncident = true;
