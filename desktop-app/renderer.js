@@ -108,7 +108,7 @@ let correctCharsCount = 0;
 
 function startExam() {
   violations = [];
-  words = Array.from({length: 100}, () => wordList[Math.floor(Math.random() * wordList.length)]);
+  words = Array.from({length: 500}, () => wordList[Math.floor(Math.random() * wordList.length)]);
   currentWordIndex = 0;
   currentWordInput = "";
   correctCharsCount = 0;
@@ -224,6 +224,7 @@ document.addEventListener('keydown', (e) => {
       for(let i=0; i<Math.min(currentWordInput.length, targetWord.length); i++) {
         if(currentWordInput[i] === targetWord[i]) correctCharsCount++;
       }
+      correctCharsCount++; // Count the space itself as a correct keystroke!
       currentWordIndex++;
       currentWordInput = "";
     }
@@ -318,7 +319,18 @@ function endExam() {
   document.getElementById('global-exam-header').classList.add('hidden');
   stopLockdown();
   
-  const wpm = Math.round((correctCharsCount / 5) / (60 / 60)); // 60s test
+  // Tally correct chars in the currently active word
+  const targetWord = words[currentWordIndex];
+  if (targetWord && currentWordInput.length > 0) {
+    for(let i=0; i<Math.min(currentWordInput.length, targetWord.length); i++) {
+      if(currentWordInput[i] === targetWord[i]) correctCharsCount++;
+    }
+  }
+  
+  // Calculate WPM dynamically based on actual active time
+  const activeSeconds = 60 - timer;
+  const activeMinutes = activeSeconds > 0 ? (activeSeconds / 60) : (1/60);
+  const wpm = Math.round((correctCharsCount / 5) / activeMinutes);
   
   document.getElementById('final-wpm').textContent = wpm;
   document.getElementById('final-violations').textContent = violations.length;
