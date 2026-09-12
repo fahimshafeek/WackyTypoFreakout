@@ -888,7 +888,7 @@ function triggerCatAnimation() {
     const isTop = Math.random() > 0.5;
     if (isTop) {
         catImg.style.top = '0px';
-        catImg.style.transform = 'translateY(-100%) scaleY(-1)';
+        catImg.style.transform = 'translateY(-100%) rotate(180deg)';
     } else {
         catImg.style.bottom = '0px';
         catImg.style.transform = 'translateY(100%)';
@@ -899,7 +899,7 @@ function triggerCatAnimation() {
     void catImg.offsetWidth; // Reflow
 
     if (isTop) {
-        catImg.style.transform = 'translateY(0) scaleY(-1)';
+        catImg.style.transform = 'translateY(0) rotate(180deg)';
     } else {
         catImg.style.transform = 'translateY(0)';
     }
@@ -909,7 +909,7 @@ function triggerCatAnimation() {
     
     crickets.onended = () => {
         if (isTop) {
-            catImg.style.transform = 'translateY(-100%) scaleY(-1)';
+            catImg.style.transform = 'translateY(-100%) rotate(180deg)';
         } else {
             catImg.style.transform = 'translateY(100%)';
         }

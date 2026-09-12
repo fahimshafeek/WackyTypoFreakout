@@ -124,13 +124,14 @@
 
 
   <!-- CHOICE SCREEN -->
-  <div id="choice-screen" class="screen vc-bg">
-    <div class="vc-menu-container">
-      <h1 class="vc-title">INCIDENT DETECTED</h1>
-      <ul class="vc-menu">
-        <li id="btn-choice-truth" class="vc-menu-item">TRUTH</li>
-        <li id="btn-choice-dare" class="vc-menu-item">DARE</li>
-      </ul>
+  <div id="choice-screen" class="screen">
+    <h2 style="font-size: 3rem; margin-bottom: 20px; color: #d9534f;">INCIDENT DETECTED</h2>
+    <p style="font-size: 1.5rem; margin-bottom: 40px; color: #323437; text-align: center; max-width: 600px;">
+      You made a mistake. You must pay the price. Make your choice to proceed.
+    </p>
+    <div style="display: flex; gap: 20px;">
+      <button id="btn-choice-truth">TRUTH</button>
+      <button id="btn-choice-dare" style="background:#444; color:white;">DARE</button>
     </div>
     <div class="camera-feed-mini">
       <video id="exam-video-choice" autoplay muted></video>
