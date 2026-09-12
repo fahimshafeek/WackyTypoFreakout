@@ -43,6 +43,8 @@ def on_startup():
 app.include_router(sessions.router, prefix="/api")
 app.include_router(incidents.router, prefix="/api")
 app.include_router(letters.router, prefix="/api")
+from backend.src.api import mongo_routes
+app.include_router(mongo_routes.router, prefix="/api")
 
 @app.get("/api/health")
 async def health_check():

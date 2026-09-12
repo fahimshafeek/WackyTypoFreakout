@@ -22,8 +22,18 @@ function showScreen(name) {
 let playerName = '';
 let stream = null;
 let violations = [];
-let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-let allViolations = JSON.parse(localStorage.getItem('allViolations')) || [];
+let leaderboard = [];
+let allViolations = [];
+
+async function loadMongoData() {
+  try {
+    const res = await fetch('http://localhost:8000/api/results');
+    leaderboard = await res.json();
+    const res2 = await fetch('http://localhost:8000/api/violations');
+    allViolations = await res2.json();
+  } catch(e) { console.error(e); }
+}
+loadMongoData();
 
 document.getElementById('btn-show-signin').addEventListener('click', () => showScreen('signin'));
 document.getElementById('btn-show-players').addEventListener('click', () => {
@@ -158,7 +168,11 @@ function recordViolation(type, severity) {
   };
   violations.push(v);
   allViolations.push(v);
-  localStorage.setItem('allViolations', JSON.stringify(allViolations));
+  fetch('http://localhost:8000/api/violations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(v)
+  }).catch(e => console.error(e));
   
   const warn = document.getElementById('lockdown-warning');
   warn.textContent = `Proctoring Violation: ${type}`;
@@ -663,7 +677,11 @@ function endExam() {
   const wpm = Math.round((correctCharsCount / 5) / activeMinutes);
   
   leaderboard.push({ player: playerName, wpm });
-  localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+  fetch('http://localhost:8000/api/results', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ player: playerName, wpm: wpm })
+  }).catch(e => console.error(e));
   
 
   const accuracy = Math.round((correctCharsCount / Math.max(1, totalTypedChars)) * 100);
@@ -763,8 +781,7 @@ function updateAdminView() {
           if(confirm(`Remove all data for player: ${p}?`)) {
             leaderboard = leaderboard.filter(e => e.player !== p);
             allViolations = allViolations.filter(e => e.player !== p);
-            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-            localStorage.setItem('allViolations', JSON.stringify(allViolations));
+            fetch(`http://localhost:8000/api/player/${encodeURIComponent(p)}`, { method: 'DELETE' }).catch(e => console.error(e));
             updateAdminView();
           }
         });
@@ -930,3 +947,26 @@ function triggerCatAnimation() {
         }, 500);
     };
 }
+
+
+document.getElementById('btn-admin-view').addEventListener('click', async () => {
+  await loadMongoData();
+  updateAdminView();
+  showScreen('admin');
+});
+document.getElementById('btn-admin-back').addEventListener('click', () => showScreen('login'));
+
+const adminTabs = ['leaderboard', 'violations', 'players'];
+adminTabs.forEach(tab => {
+  const btn = document.getElementById(`tab-${tab}`);
+  if (btn) {
+    btn.addEventListener('click', () => {
+      adminTabs.forEach(t => {
+        document.getElementById(`tab-${t}`).style.background = 'transparent';
+        document.getElementById(`content-${t}`).style.display = 'none';
+      });
+      btn.style.background = '#e2b714';
+      document.getElementById(`content-${tab}`).style.display = 'block';
+    });
+  }
+});
