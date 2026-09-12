@@ -32,3 +32,5 @@
 [2026-09-12T12:48:19Z] Initialized git repository and committed all Phase 1 files.
 [2026-09-12T13:20:33Z] Added docker-compose.yml to the root directory for self-hosted n8n container, mapping it to port 5679 to avoid conflicts with existing setup.
 [2026-09-12T13:20:43Z] Copied sincerity-check.json to /workflows folder to make it easily accessible for manual import if needed.
+[2026-09-12T13:20:53Z] Committed docker-compose.yml and workflows setup to git.
+[2026-09-12T13:33:02Z] Fixed the 'Check Word Count' node in the n8n workflow by downgrading typeVersion from 3 to 2.3 for compatibility with n8n version 2.38.6. Re-imported the workflow into the n8n GUI and updated the exported json.

@@ -94,7 +94,7 @@ return $input.item;
           "id": str(uuid.uuid4()),
           "name": "Check Word Count",
           "type": "n8n-nodes-base.if",
-          "typeVersion": 3,
+          "typeVersion": 2.3,
           "position": [600, 300]
         },
         {
