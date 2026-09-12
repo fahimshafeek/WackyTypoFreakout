@@ -58,3 +58,4 @@
 [2026-09-12T22:05:04Z] Added playback for fahhhhh.mp3 whenever the user hits backspace and triggers an incident, playing right as the flow redirects away from the active exam.
 [2026-09-12T22:07:47Z] Enforced perfect word submission by blocking the spacebar when the current word contains typos or is incomplete. Pressing space prematurely now triggers an immediate Truth or Dare / Apology sequence directed at the last typed character, preventing users from skipping over mistakes.
 [2026-09-12T22:54:19Z] Added a chaotic cat popup animation that triggers whenever a user successfully corrects and submits a word they previously made a mistake on. The cat slides in from the top or bottom edges (avoiding the exact middle), plays crickets.mp3, and then retracts back to where it came from.
+[2026-09-12T22:55:58Z] Removed the 500ms delay on the crickets audio during the cat popup so it plays synchronously with the slide-in animation.

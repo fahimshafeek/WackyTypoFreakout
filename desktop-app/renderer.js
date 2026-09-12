@@ -907,19 +907,17 @@ function triggerCatAnimation() {
         catImg.style.transform = 'translateY(0)';
     }
 
-    setTimeout(() => {
-        const crickets = new Audio('./assets/audio/crickets.mp3');
-        crickets.play().catch(e => console.error(e));
-        
-        crickets.onended = () => {
-            if (isTop) {
-                catImg.style.transform = 'translateY(-100%) scaleY(-1)';
-            } else {
-                catImg.style.transform = 'translateY(100%)';
-            }
-            setTimeout(() => {
-                catImg.remove();
-            }, 500);
-        };
-    }, 500);
+    const crickets = new Audio('./assets/audio/crickets.mp3');
+    crickets.play().catch(e => console.error(e));
+    
+    crickets.onended = () => {
+        if (isTop) {
+            catImg.style.transform = 'translateY(-100%) scaleY(-1)';
+        } else {
+            catImg.style.transform = 'translateY(100%)';
+        }
+        setTimeout(() => {
+            catImg.remove();
+        }, 500);
+    };
 }
