@@ -92,7 +92,7 @@ async def evaluate_apology_task(session_id: UUID, incident_id: UUID, letter: str
             
         else: # fail
             if attempts_remaining > 0:
-                game_session.state = SessionState.INCIDENT_CHOICE
+                game_session.state = SessionState.TRUTH_PENDING
             else:
                 game_session.state = SessionState.DARE_PENDING
                 incident.outcome = OutcomeEnum.forced_dare

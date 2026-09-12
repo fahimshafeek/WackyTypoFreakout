@@ -241,13 +241,15 @@ async function triggerApology(expectedLetter, typedLetter) {
   isApologizing = true;
   clearInterval(timerInterval); // Pause the timer!
   
-  const upperExpected = expectedLetter.toUpperCase();
+  // The user wants to apologize to the RED letter (the one they incorrectly summoned and are now erasing)
+  // which corresponds to 'typedLetter'.
+  const upperTyped = typedLetter.toUpperCase();
   const lowerTyped = typedLetter.toLowerCase();
   
-  document.getElementById('apology-character').src = `./assets/alphabets/${upperExpected}-angry.png`;
+  document.getElementById('apology-character').src = `./assets/alphabets/${upperTyped}-angry.png`;
   document.getElementById('apology-error-letter').textContent = lowerTyped;
-  document.getElementById('apology-letter-name').textContent = upperExpected;
-  document.getElementById('apology-letter-name-2').textContent = upperExpected;
+  document.getElementById('apology-letter-name').textContent = upperTyped;
+  document.getElementById('apology-letter-name-2').textContent = upperTyped;
   
   const apologyInput = document.getElementById('apology-input');
   apologyInput.value = '';
@@ -264,7 +266,7 @@ async function triggerApology(expectedLetter, typedLetter) {
     const res = await fetch(`${API_BASE}/session/${taSessionId}/backspace`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ letter: expectedLetter.toLowerCase(), position: 0 })
+      body: JSON.stringify({ letter: lowerTyped, position: 0 })
     });
     const data = await res.json();
     taIncidentId = data.incident_id;
@@ -373,6 +375,14 @@ function handleTaWsEvent(msg) {
         btn.textContent = `REJECTED! ${msg.data.feedback} (${msg.data.attempts_remaining} tries left)`;
         btn.disabled = false;
         btn.style.backgroundColor = 'red';
+        
+        // Reset button after 3 seconds
+        setTimeout(() => {
+          if (btn.style.backgroundColor === 'red') {
+            btn.textContent = 'TYPE APOLOGY';
+            btn.style.backgroundColor = '';
+          }
+        }, 3000);
       } else {
         btn.textContent = "MAX ATTEMPTS EXHAUSTED. FORCED DARE. (GAME OVER)";
         setTimeout(() => {
