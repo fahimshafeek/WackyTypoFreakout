@@ -4,6 +4,7 @@ const screens = {
   choosePlayer: document.getElementById('choose-player-screen'),
   tnc: document.getElementById('tnc-screen'),
   exam: document.getElementById('exam-screen'),
+  choice: document.getElementById('choice-screen'),
   apology: document.getElementById('apology-screen'),
   satisfied: document.getElementById('satisfied-screen'),
   leaderboard: document.getElementById('leaderboard-screen'),
