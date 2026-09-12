@@ -19,101 +19,6 @@ let violations = [];
 let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
 let allViolations = JSON.parse(localStorage.getItem('allViolations')) || [];
 
-class ReactionCapture {
-    constructor(videoEl) {
-        this.video = videoEl;
-        this.canvas = document.createElement('canvas');
-        this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
-        this.buffer = [];
-        this.captureInterval = null;
-        this.isRecordingEvent = false;
-        this.currentEventName = null;
-        this.postEventFrames = 0;
-        this.maxPreFrames = 8;  // 1.5 seconds at 4fps
-        this.maxPostFrames = 8; // 1.5 seconds at 4fps
-        
-        this.allCapturedReactions = [];
-    }
-
-    start() {
-        if (this.captureInterval) clearInterval(this.captureInterval);
-        this.captureInterval = setInterval(() => this.grabFrame(), 250); // 4 fps
-    }
-    
-    stop() {
-        if (this.captureInterval) clearInterval(this.captureInterval);
-    }
-
-    grabFrame() {
-        if (!this.video || !this.video.videoWidth) return;
-        this.canvas.width = this.video.videoWidth;
-        this.canvas.height = this.video.videoHeight;
-        this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-        
-        const frameData = {
-            imageData: this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height),
-            dataUrl: this.canvas.toDataURL('image/jpeg', 0.5)
-        };
-
-        if (this.isRecordingEvent) {
-            this.buffer.push(frameData);
-            this.postEventFrames++;
-            if (this.postEventFrames >= this.maxPostFrames) {
-                this.analyzeClipAndExtract();
-                this.isRecordingEvent = false;
-            }
-        } else {
-            this.buffer.push(frameData);
-            if (this.buffer.length > this.maxPreFrames) {
-                this.buffer.shift();
-            }
-        }
-    }
-
-    triggerEvent(eventName) {
-        if (this.isRecordingEvent) return;
-        this.isRecordingEvent = true;
-        this.currentEventName = eventName;
-        this.postEventFrames = 0;
-    }
-
-    analyzeClipAndExtract() {
-        let maxDelta = -1;
-        let bestFrame = null;
-
-        for (let i = 1; i < this.buffer.length; i++) {
-            const prev = this.buffer[i-1].imageData.data;
-            const curr = this.buffer[i].imageData.data;
-            let delta = 0;
-            // sample every 16th pixel to be super fast
-            for (let j = 0; j < curr.length; j += 64) {
-                delta += Math.abs(curr[j] - prev[j]);
-            }
-            if (delta > maxDelta) {
-                maxDelta = delta;
-                bestFrame = this.buffer[i];
-            }
-        }
-
-        if (bestFrame) {
-            this.allCapturedReactions.push({
-                caption: this.currentEventName,
-                score: maxDelta,
-                src: bestFrame.dataUrl
-            });
-        }
-
-        this.buffer = this.buffer.slice(-this.maxPreFrames);
-    }
-    
-    getTopThree() {
-        this.allCapturedReactions.sort((a, b) => b.score - a.score);
-        return this.allCapturedReactions.slice(0, 3);
-    }
-}
-const reactionCapture = new ReactionCapture(document.getElementById('exam-video'));
-
-
 document.getElementById('btn-login').addEventListener('click', () => {
   const name = document.getElementById('player-name').value.trim();
   if (!name) return alert('Enter name');
@@ -163,7 +68,6 @@ function startLockdown() {
 function stopLockdown() {
   if (window.electronAPI) {
     window.electronAPI.stopLockdown();
-  reactionCapture.stop();
   }
 }
 
@@ -200,7 +104,6 @@ let timer = 60; // Increased to 60s since apologizing takes time
 let timerInterval;
 let isExamActive = false;
 let isApologizing = false;
-  reactionCapture.start();
 let correctCharsCount = 0;
 
 function startExam() {
@@ -310,7 +213,6 @@ document.addEventListener('keydown', (e) => {
           triggerApology(expectedChar, deletedChar);
         } else if (/^[a-zA-Z]$/.test(deletedChar)) {
           // Fallback if they typed past the end of the word
-          reactionCapture.triggerEvent("Mistyped " + deletedChar.toUpperCase());
           triggerApology(deletedChar, deletedChar);
         }
       }
@@ -396,7 +298,6 @@ async function finishApology() {
   const val = document.getElementById('apology-input').value.trim();
   if (val.length === 0) return; 
   
-  reactionCapture.triggerEvent('Submitted Apology');
   btn.textContent = 'WAITING FOR AI JUDGE...';
   btn.disabled = true;
   document.getElementById('apology-feedback-cloud').classList.add('hidden');
@@ -431,12 +332,21 @@ function endExam() {
   const activeMinutes = activeSeconds > 0 ? (activeSeconds / 60) : (1/60);
   const wpm = Math.round((correctCharsCount / 5) / activeMinutes);
   
-  
-  
-  
   leaderboard.push({ player: playerName, wpm });
   leaderboard.sort((a, b) => b.wpm - a.wpm);
   localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+  
+  const accuracy = Math.round((correctCharsCount / Math.max(1, correctCharsCount + (violations.length * 5))) * 100);
+
+  if (window.renderResults) {
+      window.renderResults({
+        wpm: wpm,
+        accuracy: accuracy,
+        apologiesWritten: violations.length,
+        mascotName: document.getElementById('apology-letter-name')?.textContent || 'Z',
+        photos: []
+      });
+  }
   
   showScreen('result');
   if (stream) {
@@ -445,7 +355,6 @@ function endExam() {
   }
 }
 
-document.getElementById('btn-home').addEventListener('click', () => showScreen('login'));
 
 function updateAdminView() {
   const lb = document.getElementById('leaderboard-list');
@@ -491,7 +400,6 @@ function handleTaWsEvent(msg) {
     const cloudText = document.getElementById('apology-feedback-text');
     
     if (msg.data.verdict === 'fail') {
-      reactionCapture.triggerEvent('Apology Rejected');
       if (msg.data.attempts_remaining > 0) {
         
         const apologyText = document.getElementById('apology-input').value;
@@ -554,7 +462,6 @@ function handleTaWsEvent(msg) {
      document.getElementById('btn-submit-apology').disabled = false;
   }
 }
-
 
 document.addEventListener("results:play-again", () => { 
     startExam(); 
