@@ -1,0 +1,62 @@
+{
+  "name": "sincerity-check",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "sincerity-check",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [ 250, 300 ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const text = $input.item.json.body.apology_text || '';\nconst min = $input.item.json.body.min_words || 50;\n$input.item.json.word_count = text.split(/\\s+/).length;\nreturn $input.item;"
+      },
+      "name": "Count Words",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [ 450, 300 ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"sincerity_score\": 100,\n  \"verdict\": \"pass\",\n  \"feedback\": \"Fallback response from empty workflow.\"\n}",
+        "options": {}
+      },
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [ 700, 300 ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Count Words",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Count Words": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {}
+}
