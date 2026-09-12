@@ -251,6 +251,7 @@ async function triggerApology(expectedLetter, typedLetter) {
   document.getElementById('apology-letter-name').textContent = upperTyped;
   document.getElementById('apology-letter-name-2').textContent = upperTyped;
   document.getElementById('apology-feedback-cloud').classList.add('hidden');
+  document.getElementById('apology-feedback-text').textContent = '';
   
   const apologyInput = document.getElementById('apology-input');
   apologyInput.value = '';
@@ -299,6 +300,7 @@ async function finishApology() {
   btn.textContent = 'WAITING FOR AI JUDGE...';
   btn.disabled = true;
   document.getElementById('apology-feedback-cloud').classList.add('hidden');
+  document.getElementById('apology-feedback-text').textContent = '';
   
   try {
     await fetch(`${API_BASE}/incident/${taIncidentId}/apology`, {

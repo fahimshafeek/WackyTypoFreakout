@@ -163,6 +163,7 @@ button {
   flex: 1;
   display: flex;
   justify-content: center;
+  position: relative;
 }
 .character-side img {
   max-height: 50vh;
@@ -227,4 +228,50 @@ button {
 
 #satisfied-character {
   max-height: 60vh;
+}
+
+/* Feedback Cloud (speech bubble from angry letter) */
+.feedback-cloud {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffdbdb;
+  color: var(--error);
+  padding: 15px 20px;
+  border-radius: 15px;
+  border: 3px solid #333;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 0.9rem;
+  min-width: 180px;
+  max-width: 320px;
+  text-align: center;
+  z-index: 10;
+  box-shadow: 0 6px 0 rgba(0,0,0,0.1);
+  line-height: 1.4;
+}
+.feedback-cloud::after {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  margin-left: -12px;
+  border-width: 16px 12px 0;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+.feedback-cloud::before {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  margin-left: -10px;
+  border-width: 13px 10px 0;
+  border-style: solid;
+  border-color: #ffdbdb transparent transparent transparent;
+  z-index: 1;
+}
+.feedback-cloud.hidden {
+  display: none;
 }
