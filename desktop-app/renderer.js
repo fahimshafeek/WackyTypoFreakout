@@ -487,6 +487,14 @@ document.addEventListener('keydown', (e) => {
   } else if (e.key === ' ') {
     e.preventDefault();
     if (currentWordInput.length > 0) {
+      if (currentWordInput !== targetWord) {
+        const lastTypedKey = currentWordInput.slice(-1);
+        const apologyKey = /^[a-zA-Z]$/.test(lastTypedKey) ? lastTypedKey : 'Z';
+        reactionCapture.triggerEvent('Mistyped Space');
+        triggerIncident(apologyKey, apologyKey);
+        return;
+      }
+      
       // count correct chars for WPM
       for(let i=0; i<Math.min(currentWordInput.length, targetWord.length); i++) {
         if(currentWordInput[i] === targetWord[i]) correctCharsCount++;
