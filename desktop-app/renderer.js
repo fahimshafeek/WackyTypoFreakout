@@ -431,8 +431,8 @@ function endExam() {
   const activeMinutes = activeSeconds > 0 ? (activeSeconds / 60) : (1/60);
   const wpm = Math.round((correctCharsCount / 5) / activeMinutes);
   
-  document.getElementById('final-wpm').textContent = wpm;
-  document.getElementById('final-violations').textContent = violations.length;
+  
+  
   
   leaderboard.push({ player: playerName, wpm });
   leaderboard.sort((a, b) => b.wpm - a.wpm);
