@@ -509,8 +509,12 @@ document.addEventListener('keydown', (e) => {
 
 let currentIncidentExpected = null;
 let currentIncidentTyped = null;
+const incidentAudio = new Audio('./assets/audio/fahhhhh.mp3');
 
 async function triggerIncident(expectedLetter, typedLetter) {
+  incidentAudio.currentTime = 0;
+  incidentAudio.play().catch(e => console.error(e));
+  
   isApologizing = true;
   clearInterval(timerInterval); // Pause the timer!
   
