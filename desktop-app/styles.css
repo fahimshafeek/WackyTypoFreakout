@@ -638,3 +638,48 @@ button {
   from, to { border-color: transparent }
   50% { border-color: var(--accent); }
 }
+
+
+/* ---------- Vice City Choice Screen ---------- */
+.vc-bg {
+  background: rgba(10, 10, 10, 0.95);
+  background-image: repeating-linear-gradient(0deg, rgba(255, 0, 255, 0.05) 0px, rgba(255, 0, 255, 0.05) 2px, transparent 2px, transparent 4px);
+}
+.vc-menu-container {
+  position: absolute;
+  top: 50%;
+  left: 15%;
+  transform: translateY(-50%);
+  font-family: "Impact", "Arial Black", sans-serif;
+}
+.vc-title {
+  color: #ff55ff;
+  font-size: 4rem;
+  font-style: italic;
+  text-shadow: 4px 4px 0px #000, 6px 6px 0px #00ffff;
+  margin-bottom: 50px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.vc-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.vc-menu-item {
+  color: #ffffff;
+  font-size: 3rem;
+  font-style: italic;
+  text-shadow: 3px 3px 0px #000;
+  margin-bottom: 30px;
+  cursor: pointer;
+  transition: all 0.15s ease-out;
+  text-transform: uppercase;
+  display: inline-block;
+  padding: 5px 20px;
+}
+.vc-menu-item:hover {
+  color: #ff55ff;
+  text-shadow: 3px 3px 0px #000, 6px 6px 0px #00ffff;
+  transform: scale(1.1) translateX(20px);
+}

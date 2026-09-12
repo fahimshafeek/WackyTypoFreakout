@@ -52,9 +52,13 @@ async function startDeviceCheck() {
 }
 
 document.getElementById('btn-start-exam').addEventListener('click', () => {
-  document.getElementById('exam-video').srcObject = stream;
-  document.getElementById('exam-video-2').srcObject = stream;
-  document.getElementById('exam-video-3').srcObject = stream;
+  ['exam-video', 'exam-video-choice', 'exam-video-2', 'exam-video-3'].forEach(id => {
+    const v = document.getElementById(id);
+    if(v) {
+      v.srcObject = stream;
+      v.play().catch(e => console.error(e));
+    }
+  });
   startLockdown();
   startExam();
 });
@@ -292,7 +296,7 @@ function startExam() {
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       .then(s => {
         stream = s;
-        ['exam-video', 'exam-video-2', 'exam-video-3'].forEach(id => {
+        ['exam-video', 'exam-video-choice', 'exam-video-2', 'exam-video-3'].forEach(id => {
           const v = document.getElementById(id);
           if (v) {
             v.srcObject = stream;
@@ -302,7 +306,7 @@ function startExam() {
       })
       .catch(e => console.error("Re-acquire stream failed:", e));
   } else {
-    ['exam-video', 'exam-video-2', 'exam-video-3'].forEach(id => {
+    ['exam-video', 'exam-video-choice', 'exam-video-2', 'exam-video-3'].forEach(id => {
       const v = document.getElementById(id);
       if (v) {
         v.srcObject = stream;
@@ -408,11 +412,11 @@ document.addEventListener('keydown', (e) => {
         // If the expected char is a valid letter, make it angry
         if (expectedChar && /^[a-zA-Z]$/.test(expectedChar)) {
           reactionCapture.triggerEvent('Mistyped ' + deletedChar.toUpperCase());
-          triggerApology(expectedChar, deletedChar);
+          triggerIncident(expectedChar, deletedChar);
         } else if (/^[a-zA-Z]$/.test(deletedChar)) {
           // Fallback if they typed past the end of the word
           reactionCapture.triggerEvent('Mistyped ' + deletedChar.toUpperCase());
-          triggerApology(deletedChar, deletedChar);
+          triggerIncident(deletedChar, deletedChar);
         }
       }
     }
@@ -439,12 +443,44 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-async function triggerApology(expectedLetter, typedLetter) {
+let currentIncidentExpected = null;
+let currentIncidentTyped = null;
+
+async function triggerIncident(expectedLetter, typedLetter) {
   isApologizing = true;
   clearInterval(timerInterval); // Pause the timer!
   
-  // The user wants to apologize to the RED letter (the one they incorrectly summoned and are now erasing)
-  // which corresponds to 'typedLetter'.
+  currentIncidentExpected = expectedLetter;
+  currentIncidentTyped = typedLetter;
+  
+  showScreen('choice');
+  
+  try {
+    const lowerTyped = typedLetter.toLowerCase();
+    const res = await fetch(`${API_BASE}/session/${taSessionId}/backspace`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ letter: lowerTyped, position: 0 })
+    });
+    const data = await res.json();
+    taIncidentId = data.incident_id;
+  } catch(e) { console.error(e); }
+}
+
+document.getElementById('btn-choice-truth').addEventListener('click', async () => {
+  if (taIncidentId) {
+    try {
+      await fetch(`${API_BASE}/incident/${taIncidentId}/choice`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ choice: 'truth' })
+      });
+    } catch(e) { console.error(e); }
+  }
+
+  // Setup and transition to apology screen
+  const expectedLetter = currentIncidentExpected;
+  const typedLetter = currentIncidentTyped;
   const upperTyped = typedLetter.toUpperCase();
   const lowerTyped = typedLetter.toLowerCase();
   
@@ -465,24 +501,24 @@ async function triggerApology(expectedLetter, typedLetter) {
   
   showScreen('apology');
   apologyInput.focus();
+});
+
+document.getElementById('btn-choice-dare').addEventListener('click', async () => {
+  if (taIncidentId) {
+    try {
+      await fetch(`${API_BASE}/incident/${taIncidentId}/choice`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ choice: 'dare' })
+      });
+    } catch(e) { console.error(e); }
+  }
   
-  try {
-    const res = await fetch(`${API_BASE}/session/${taSessionId}/backspace`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ letter: lowerTyped, position: 0 })
-    });
-    const data = await res.json();
-    taIncidentId = data.incident_id;
-    
-    // Automatically choose truth
-    await fetch(`${API_BASE}/incident/${taIncidentId}/choice`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ choice: 'truth' })
-    });
-  } catch(e) { console.error(e); }
-}
+  setTimeout(() => {
+    alert("DARE PENDING. Hardware not connected. Terminating Exam.");
+    endExam();
+  }, 500); // slight delay for effect
+});
 
 document.getElementById('btn-submit-apology').addEventListener('click', finishApology);
 document.getElementById('apology-input').addEventListener('keydown', (e) => {
