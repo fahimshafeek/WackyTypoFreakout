@@ -175,6 +175,7 @@ let timerInterval;
 let isExamActive = false;
 let isApologizing = false;
 let currentWordHadIncident = false;
+let wrongSpaceCount = 0;
 
 class ReactionCapture {
     constructor(videoEl) {
@@ -282,6 +283,7 @@ const reactionCapture = new ReactionCapture(document.getElementById('exam-video'
 
 let correctCharsCount = 0;
 let totalTypedChars = 0;
+  wrongSpaceCount = 0;
 
 
 // ==========================================
@@ -353,6 +355,7 @@ function startExam() {
   currentWordInput = "";
   correctCharsCount = 0;
   totalTypedChars = 0;
+  wrongSpaceCount = 0;
   timer = 60;
   isExamActive = true;
   reactionCapture.reset();
@@ -490,6 +493,15 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
     if (currentWordInput.length > 0) {
       if (currentWordInput !== targetWord) {
+        wrongSpaceCount++;
+        if (wrongSpaceCount > 7) {
+          wrongSpaceCount = 0;
+          reactionCapture.triggerEvent('Too Many Skips');
+          const lastTypedKey = currentWordInput.slice(-1);
+          const apologyKey = /^[a-zA-Z]$/.test(lastTypedKey) ? lastTypedKey : 'Z';
+          triggerIncident(apologyKey, apologyKey);
+          return;
+        }
         reactionCapture.triggerEvent('Mistyped Space');
         triggerCatAnimation(); // The cat animation handles the crickets audio automatically!
       } else if (currentWordHadIncident) {
