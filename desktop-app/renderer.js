@@ -241,7 +241,7 @@ function triggerApology(expectedLetter, typedLetter) {
   const upperExpected = expectedLetter.toUpperCase();
   const lowerTyped = typedLetter.toLowerCase();
   
-  document.getElementById('apology-character').src = `./assets/${upperExpected}-angry.png`;
+  document.getElementById('apology-character').src = `./assets/alphabets/${upperExpected}-angry.png`;
   document.getElementById('apology-error-letter').textContent = lowerTyped;
   document.getElementById('apology-letter-name').textContent = upperExpected;
   document.getElementById('apology-letter-name-2').textContent = upperExpected;
@@ -267,7 +267,7 @@ function finishApology() {
   
   const upperLetter = document.getElementById('apology-letter-name').textContent;
   
-  document.getElementById('satisfied-character').src = `./assets/${upperLetter}-satisfied.png`;
+  document.getElementById('satisfied-character').src = `./assets/alphabets/${upperLetter}-satisfied.png`;
   showScreen('satisfied');
   
   setTimeout(() => {
