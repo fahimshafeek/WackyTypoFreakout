@@ -119,6 +119,16 @@ class ReactionCapture {
         this.maxPreFrames = 8;
         this.maxPostFrames = 8;
         this.allCapturedReactions = [];
+        this.lastFrameData = null;
+        this.currentMovement = 0;
+    }
+    reset() {
+        this.allCapturedReactions = [];
+        this.buffer = [];
+        this.isRecordingEvent = false;
+        this.postEventFrames = 0;
+        this.lastFrameData = null;
+        this.currentMovement = 0;
     }
     start() {
         if (this.captureInterval) clearInterval(this.captureInterval);
@@ -137,6 +147,17 @@ class ReactionCapture {
             imageData: this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height),
             dataUrl: this.canvas.toDataURL('image/jpeg', 0.5)
         };
+
+        // Continuous monitoring delta calculation
+        if (this.lastFrameData) {
+            let delta = 0;
+            const curr = frameData.imageData.data;
+            for (let j = 0; j < curr.length; j += 128) {
+                delta += Math.abs(curr[j] - this.lastFrameData[j]);
+            }
+            this.currentMovement = delta;
+        }
+        this.lastFrameData = frameData.imageData.data;
 
         if (this.isRecordingEvent) {
             this.buffer.push(frameData);
@@ -192,6 +213,69 @@ const reactionCapture = new ReactionCapture(document.getElementById('exam-video'
 let correctCharsCount = 0;
 let totalTypedChars = 0;
 
+
+// ==========================================
+// AI COMMENTARY ENGINE
+// ==========================================
+let commentaryActive = false;
+let commentaryTimeout = null;
+
+const highMovementPhrases = ["You're sweating aren't you!", "Deep breaths...", "Calm down!", "Getting nervous?", "Whoa, don't break the keyboard!"];
+const highMistakePhrases = ["Don't fumble up", "Keyboard acting up?", "Sloppy...", "Focus!", "You can do better."];
+const fastTypingPhrases = ["Machine-like precision.", "In the zone...", "Look at those fingers fly!", "Unstoppable.", "Is that you, Flash?"];
+
+function showCommentary(text) {
+    if (commentaryActive) return;
+    const box = document.getElementById('ai-commentary-box');
+    const span = document.getElementById('ai-commentary-text');
+    
+    if (!box || !span) return;
+    
+    if (!box || !span) return;
+    
+    box.classList.remove('hidden');
+    commentaryActive = true;
+    span.textContent = '';
+    
+    let i = 0;
+    function typeWriter() {
+        if (i < text.length) {
+            span.textContent += text.charAt(i);
+            i++;
+            setTimeout(typeWriter, 50); // 50ms per character
+        } else {
+            if (Math.random() > 0.4) {
+                reactionCapture.triggerEvent(text);
+            }
+            clearTimeout(commentaryTimeout);
+            commentaryTimeout = setTimeout(() => {
+                box.classList.add('hidden');
+                setTimeout(() => { commentaryActive = false; }, 500);
+            }, 7000);
+        }
+    }
+    typeWriter();
+}
+
+setInterval(() => {
+    if (!isExamActive || isApologizing || commentaryActive) return;
+    
+    const activeSeconds = 60 - timer;
+    if (activeSeconds < 3) return;
+    
+    const currentWpm = Math.round((correctCharsCount / 5) / (activeSeconds / 60));
+    const movement = reactionCapture.currentMovement || 0;
+    const accuracy = Math.round((correctCharsCount / Math.max(1, totalTypedChars)) * 100);
+    
+    if (movement > 5000 && Math.random() > 0.2) { 
+        showCommentary(highMovementPhrases[Math.floor(Math.random() * highMovementPhrases.length)]);
+    } else if (accuracy < 85 && totalTypedChars > 25 && Math.random() > 0.3) {
+        showCommentary(highMistakePhrases[Math.floor(Math.random() * highMistakePhrases.length)]);
+    } else if (currentWpm > 75 && accuracy > 95 && Math.random() > 0.5) {
+        showCommentary(fastTypingPhrases[Math.floor(Math.random() * fastTypingPhrases.length)]);
+    }
+}, 2000);
+
 function startExam() {
   violations = [];
   words = Array.from({length: 500}, () => wordList[Math.floor(Math.random() * wordList.length)]);
@@ -201,6 +285,7 @@ function startExam() {
   totalTypedChars = 0;
   timer = 60;
   isExamActive = true;
+  reactionCapture.reset();
   reactionCapture.start();
 
   if (!stream) {

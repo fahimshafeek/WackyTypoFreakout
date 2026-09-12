@@ -60,8 +60,14 @@ function buildPhotoItem(photo) {
     img.alt = photo.caption || "";
     img.onerror = () => { frame.innerHTML = CAMERA_PLACEHOLDER; };
     frame.appendChild(img);
-  } else {
-    frame.innerHTML = CAMERA_PLACEHOLDER;
+} else {
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const randomLetter = letters[Math.floor(Math.random() * letters.length)];
+    const img = document.createElement("img");
+    img.src = './assets/alphabets/' + randomLetter + '-satisfied.png';
+    img.alt = 'No Reaction Captured';
+    img.onerror = () => { frame.innerHTML = CAMERA_PLACEHOLDER; };
+    frame.appendChild(img);
   }
 
   const pad = document.createElement("div");
