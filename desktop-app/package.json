@@ -1,0 +1,12 @@
+{
+  "name": "desktop-app",
+  "version": "1.0.0",
+  "description": "Proctored Typing Exam",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron . --no-sandbox"
+  },
+  "dependencies": {
+    "electron": "^32.0.1"
+  }
+}

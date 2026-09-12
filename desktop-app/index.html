@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Proctored Typing Exam</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen" class="screen active">
+    <h1>MonkeyType Proctored Exam</h1>
+    <input type="text" id="player-name" placeholder="Enter your name">
+    <button id="btn-login">Login</button>
+    <button id="btn-admin-view" style="margin-top:20px; background:#444; color: white;">Admin Dashboard</button>
+  </div>
+
+  <!-- DEVICE CHECK SCREEN -->
+  <div id="device-check-screen" class="screen">
+    <h2>Device Check</h2>
+    <div class="check-item">
+      <span>Webcam Status:</span> <span id="cam-status" class="status-pending">Checking...</span>
+    </div>
+    <div class="check-item">
+      <span>Microphone Status:</span> <span id="mic-status" class="status-pending">Checking...</span>
+    </div>
+    <video id="preview-video" autoplay muted></video>
+    <button id="btn-start-exam" disabled>Start Exam & Enter Lockdown</button>
+  </div>
+
+  <!-- EXAM SCREEN -->
+  <div id="exam-screen" class="screen">
+    <div class="header">
+      <div class="timer" id="timer">30s</div>
+      <div class="proctoring-info">
+        <div id="lockdown-warning" class="warning-banner hidden">Proctoring Violation: Fullscreen Exited!</div>
+      </div>
+    </div>
+    
+    <div class="typing-container">
+      <div id="words-display"></div>
+      <input type="text" id="typing-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+
+    <div class="camera-feed-mini">
+      <video id="exam-video" autoplay muted></video>
+      <div class="recording-indicator">🔴 REC</div>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="result-screen" class="screen">
+    <h2>Exam Complete</h2>
+    <div class="stats">
+      <div>WPM: <span id="final-wpm">0</span></div>
+      <div>Violations: <span id="final-violations">0</span></div>
+    </div>
+    <button id="btn-home">Return Home</button>
+  </div>
+
+  <!-- ADMIN SCREEN -->
+  <div id="admin-screen" class="screen">
+    <h2>Admin / Proctor Dashboard</h2>
+    <button id="btn-admin-back">Back</button>
+    <div class="dashboard-grid">
+      <div class="panel">
+        <h3>Leaderboard</h3>
+        <ul id="leaderboard-list"></ul>
+      </div>
+      <div class="panel">
+        <h3>Violation Logs</h3>
+        <ul id="violation-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
