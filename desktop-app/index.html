@@ -6,6 +6,14 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  
+  <div id="global-exam-header" class="header hidden">
+    <div class="timer" id="timer">30s</div>
+    <div class="proctoring-info">
+      <div id="lockdown-warning" class="warning-banner hidden">Proctoring Violation!</div>
+    </div>
+  </div>
+
   <!-- LOGIN SCREEN -->
   <div id="login-screen" class="screen active">
     <h1>MonkeyType Proctored Exam</h1>
@@ -29,20 +37,52 @@
 
   <!-- EXAM SCREEN -->
   <div id="exam-screen" class="screen">
-    <div class="header">
-      <div class="timer" id="timer">30s</div>
-      <div class="proctoring-info">
-        <div id="lockdown-warning" class="warning-banner hidden">Proctoring Violation: Fullscreen Exited!</div>
-      </div>
-    </div>
-    
     <div class="typing-container">
       <div id="words-display"></div>
-      <input type="text" id="typing-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
 
     <div class="camera-feed-mini">
       <video id="exam-video" autoplay muted></video>
+      <div class="recording-indicator">🔴 REC</div>
+    </div>
+  </div>
+
+  <!-- APOLOGY SCREEN -->
+  <div id="apology-screen" class="screen">
+    <div class="apology-container">
+      <div class="character-side">
+        <img id="apology-character" src="" alt="Angry Character">
+      </div>
+      <div class="apology-ui-side">
+        <div class="apology-header">
+          <div class="error-card"><span id="apology-error-letter">g</span></div>
+          <div class="apology-text">
+            <h2>Oops! You messed up <span id="apology-letter-name">Z</span>.</h2>
+            <p>Apologize to <span id="apology-letter-name-2">Z</span>!</p>
+          </div>
+        </div>
+        <input type="text" id="apology-input" placeholder="Type your apology here..." autocomplete="off">
+        <button id="btn-submit-apology">TYPE APOLOGY</button>
+      </div>
+    </div>
+    
+    <!-- Top right backspace hint -->
+    <div class="backspace-hint">
+      <div class="key">Backspace &larr;</div>
+      <div>Wrong letter deleted!</div>
+    </div>
+    
+    <div class="camera-feed-mini">
+      <video id="exam-video-2" autoplay muted></video>
+      <div class="recording-indicator">🔴 REC</div>
+    </div>
+  </div>
+
+  <!-- SATISFIED SCREEN -->
+  <div id="satisfied-screen" class="screen">
+    <img id="satisfied-character" src="" alt="Satisfied Character">
+    <div class="camera-feed-mini">
+      <video id="exam-video-3" autoplay muted></video>
       <div class="recording-indicator">🔴 REC</div>
     </div>
   </div>

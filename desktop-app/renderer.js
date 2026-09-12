@@ -2,6 +2,8 @@ const screens = {
   login: document.getElementById('login-screen'),
   deviceCheck: document.getElementById('device-check-screen'),
   exam: document.getElementById('exam-screen'),
+  apology: document.getElementById('apology-screen'),
+  satisfied: document.getElementById('satisfied-screen'),
   result: document.getElementById('result-screen'),
   admin: document.getElementById('admin-screen')
 };
@@ -50,8 +52,9 @@ async function startDeviceCheck() {
 }
 
 document.getElementById('btn-start-exam').addEventListener('click', () => {
-  showScreen('exam');
   document.getElementById('exam-video').srcObject = stream;
+  document.getElementById('exam-video-2').srcObject = stream;
+  document.getElementById('exam-video-3').srcObject = stream;
   startLockdown();
   startExam();
 });
@@ -96,27 +99,27 @@ function recordViolation(type, severity) {
 const wordList = ["the", "be", "to", "of", "and", "a", "in", "that", "have", "i", "it", "for", "not", "on", "with", "he", "as", "you", "do", "at", "this", "but", "his", "by", "from", "they", "we", "say", "her", "she", "or", "an", "will", "my", "one", "all", "would", "there", "their", "what", "so", "up", "out", "if", "about", "who", "get", "which", "go", "me"];
 let words = [];
 let currentWordIndex = 0;
-let currentCharIndex = 0;
-let timer = 30;
+let currentWordInput = "";
+let timer = 60; // Increased to 60s since apologizing takes time
 let timerInterval;
 let isExamActive = false;
-let correctChars = 0;
+let isApologizing = false;
+let correctCharsCount = 0;
 
 function startExam() {
   violations = [];
-  words = Array.from({length: 50}, () => wordList[Math.floor(Math.random() * wordList.length)]);
+  words = Array.from({length: 100}, () => wordList[Math.floor(Math.random() * wordList.length)]);
   currentWordIndex = 0;
-  currentCharIndex = 0;
-  correctChars = 0;
-  timer = 30;
+  currentWordInput = "";
+  correctCharsCount = 0;
+  timer = 60;
   isExamActive = true;
-  document.getElementById('timer').textContent = `${timer}s`;
-  renderWords();
+  isApologizing = false;
   
-  const input = document.getElementById('typing-input');
-  input.value = '';
-  input.focus();
-  input.addEventListener('blur', keepFocus); 
+  document.getElementById('timer').textContent = `${timer}s`;
+  document.getElementById('global-exam-header').classList.remove('hidden');
+  showScreen('exam');
+  renderWords();
 
   timerInterval = setInterval(() => {
     timer--;
@@ -125,66 +128,165 @@ function startExam() {
   }, 1000);
 }
 
-function keepFocus() {
-  if (isExamActive) {
-    document.getElementById('typing-input').focus();
-  }
-}
-
 function renderWords() {
   const display = document.getElementById('words-display');
   display.innerHTML = '';
-  words.forEach((w, wIdx) => {
+  
+  // Show only a window of words around the current word
+  const startIdx = Math.max(0, currentWordIndex - 10);
+  const endIdx = Math.min(words.length, currentWordIndex + 20);
+  
+  for (let wIdx = startIdx; wIdx < endIdx; wIdx++) {
+    const w = words[wIdx];
     const wordEl = document.createElement('div');
     wordEl.className = 'word';
+    
     for (let i = 0; i < w.length; i++) {
       const charEl = document.createElement('span');
       charEl.className = 'char';
       charEl.textContent = w[i];
-      if (wIdx === currentWordIndex && i === currentCharIndex) {
-        charEl.classList.add('cursor');
+      
+      if (wIdx < currentWordIndex) {
+        charEl.classList.add('correct');
+      } else if (wIdx === currentWordIndex) {
+        if (i < currentWordInput.length) {
+          if (currentWordInput[i] === w[i]) {
+            charEl.classList.add('correct');
+          } else {
+            charEl.classList.add('incorrect');
+          }
+        }
+        if (i === currentWordInput.length) {
+          charEl.classList.add('cursor');
+        }
       }
+      
       wordEl.appendChild(charEl);
     }
-    const spaceEl = document.createElement('span');
-    spaceEl.className = 'char';
-    spaceEl.textContent = ' ';
-    if (wIdx === currentWordIndex && currentCharIndex === w.length) {
-      spaceEl.classList.add('cursor');
+    
+    // Extra typed chars
+    if (wIdx === currentWordIndex && currentWordInput.length > w.length) {
+      for (let i = w.length; i < currentWordInput.length; i++) {
+        const extraCharEl = document.createElement('span');
+        extraCharEl.className = 'char incorrect';
+        extraCharEl.textContent = currentWordInput[i];
+        wordEl.appendChild(extraCharEl);
+      }
     }
-    wordEl.appendChild(spaceEl);
+    
+    // Cursor at the end of word
+    if (wIdx === currentWordIndex && currentWordInput.length >= w.length) {
+       const spaceEl = document.createElement('span');
+       spaceEl.className = 'char cursor';
+       spaceEl.textContent = ' ';
+       wordEl.appendChild(spaceEl);
+    } else {
+       const spaceEl = document.createElement('span');
+       spaceEl.className = 'char';
+       spaceEl.textContent = ' ';
+       wordEl.appendChild(spaceEl);
+    }
+    
     display.appendChild(wordEl);
-  });
+  }
 }
 
-document.getElementById('typing-input').addEventListener('input', (e) => {
+document.addEventListener('keydown', (e) => {
   if (!isExamActive) return;
-  const val = e.target.value;
-  const currentWord = words[currentWordIndex];
-  const lastChar = val.slice(-1);
+  if (isApologizing) return; 
   
-  if (lastChar === ' ') {
-    currentWordIndex++;
-    currentCharIndex = 0;
-    e.target.value = '';
-  } else {
-    const expectedChar = currentWord[val.length - 1];
-    if (lastChar === expectedChar) {
-      correctChars++;
+  if (e.ctrlKey || e.altKey || e.metaKey) return;
+  
+  const targetWord = words[currentWordIndex];
+  
+  if (e.key === 'Backspace') {
+    if (currentWordInput.length > 0) {
+      const deletedChar = currentWordInput.slice(-1);
+      const expectedChar = targetWord[currentWordInput.length - 1];
+      
+      currentWordInput = currentWordInput.slice(0, -1);
+      
+      if (deletedChar !== expectedChar) {
+        // If the expected char is a valid letter, make it angry
+        if (expectedChar && /^[a-zA-Z]$/.test(expectedChar)) {
+          triggerApology(expectedChar, deletedChar);
+        } else if (/^[a-zA-Z]$/.test(deletedChar)) {
+          // Fallback if they typed past the end of the word
+          triggerApology(deletedChar, deletedChar);
+        }
+      }
     }
-    currentCharIndex = val.length;
+  } else if (e.key === ' ') {
+    e.preventDefault();
+    if (currentWordInput.length > 0) {
+      // count correct chars for WPM
+      for(let i=0; i<Math.min(currentWordInput.length, targetWord.length); i++) {
+        if(currentWordInput[i] === targetWord[i]) correctCharsCount++;
+      }
+      currentWordIndex++;
+      currentWordInput = "";
+    }
+  } else if (e.key.length === 1) {
+    e.preventDefault();
+    currentWordInput += e.key;
   }
   
-  renderWords();
+  if (!isApologizing) {
+    renderWords();
+  }
 });
+
+function triggerApology(expectedLetter, typedLetter) {
+  isApologizing = true;
+  const upperExpected = expectedLetter.toUpperCase();
+  const lowerTyped = typedLetter.toLowerCase();
+  
+  document.getElementById('apology-character').src = `./assets/${upperExpected}-angry.png`;
+  document.getElementById('apology-error-letter').textContent = lowerTyped;
+  document.getElementById('apology-letter-name').textContent = upperExpected;
+  document.getElementById('apology-letter-name-2').textContent = upperExpected;
+  
+  const apologyInput = document.getElementById('apology-input');
+  apologyInput.value = '';
+  
+  showScreen('apology');
+  apologyInput.focus();
+}
+
+document.getElementById('btn-submit-apology').addEventListener('click', finishApology);
+document.getElementById('apology-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    finishApology();
+  }
+});
+
+function finishApology() {
+  const val = document.getElementById('apology-input').value.trim();
+  if (val.length === 0) return; 
+  
+  const upperLetter = document.getElementById('apology-letter-name').textContent;
+  
+  document.getElementById('satisfied-character').src = `./assets/${upperLetter}-satisfied.png`;
+  showScreen('satisfied');
+  
+  setTimeout(() => {
+    if (timer > 0 && isExamActive) {
+      isApologizing = false;
+      showScreen('exam');
+      renderWords();
+    }
+  }, 1500);
+}
 
 function endExam() {
   isExamActive = false;
+  isApologizing = false;
   clearInterval(timerInterval);
-  document.getElementById('typing-input').removeEventListener('blur', keepFocus);
+  document.getElementById('global-exam-header').classList.add('hidden');
   stopLockdown();
   
-  const wpm = Math.round((correctChars / 5) / (30 / 60));
+  const wpm = Math.round((correctCharsCount / 5) / (60 / 60)); // 60s test
   
   document.getElementById('final-wpm').textContent = wpm;
   document.getElementById('final-violations').textContent = violations.length;
