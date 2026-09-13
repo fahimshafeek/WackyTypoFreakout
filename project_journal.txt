@@ -72,3 +72,4 @@
 [2026-09-13T03:32:44Z] Fixed the Truth and Dare buttons which were corrupted during the merge, causing the backend to reject apologies. Also implemented an Auto-Crank simulation fallback for the Dare screen so players don't get softlocked when the physical hardware crank isn't connected.
 [2026-09-13T03:34:15Z] Completed comprehensive bug hunt and fixed the remaining UI state integration issues after the merge.
 [2026-09-13T04:03:14Z] Reverted Auto-Cranking simulation feature and successfully started backend server which is natively bound to the hardware serial port.
+[2026-09-13T04:17:10Z] Fixed the abandoned session ghosting bug in _handle_pulse by sorting by started_at DESC. Added frontend ws auto-reconnect.
