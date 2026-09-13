@@ -116,27 +116,31 @@ Only after completing the punishment can the player return to the exact point wh
               ┌──────────────┐
               │ Game Complete│
               └──────────────┘
-Technical Details
-Technologies / Components Used
-Software
-Frontend: HTML, CSS, JavaScript
-Typing Engine: Monkeytype-inspired typing interface
-Backend: Python, FastAPI
-Database: SQLite
-Real-time Communication: WebSockets
-AI Workflow: n8n
-Local AI: Ollama
-HTTP Communication: REST API
-Desktop Environment: Electron
-Testing: Pytest
-Hardware
-ESP8266
-MAX30102 sensor
-Cardboard wheel
-Connecting wires
-Phone hotspot / local Wi-Fi network
-The physical Dare mechanism uses a rotating cardboard wheel. The sensor detects wheel movement and sends rotation progress to the application.
-System Architecture
+```
+## Technical Details
+### Technologies / Components Used
+#### Software
+- Frontend: HTML, CSS, JavaScript
+- Typing Engine: Monkeytype-inspired typing interface
+- Backend: Python, FastAPI
+- Database: SQLite
+- Real-time Communication: WebSockets
+- AI Workflow: n8n
+- Local AI: Ollama
+- HTTP Communication: REST API
+- Desktop Environment: Electron
+- Testing: Pytest
+#### Hardware
+- ESP8266
+- MAX30102 sensor
+- Cardboard wheel
+- Connecting wires
+- Phone hotspot / local Wi-Fi network
+- The physical Dare mechanism uses a rotating cardboard wheel. The sensor detects wheel movement and sends rotation progress to the application.
+
+  
+## System Architecture
+```
                   ┌─────────────────────────┐
                   │      Typing Frontend    │
                   │   Monkeytype-inspired  │
@@ -170,8 +174,9 @@ System Architecture
                     │ Ollama  │
                     │ Local AI│
                     └─────────┘
-Implementation
-Game Flow
+```
+## Implementation
+### Game Flow
 The player starts the typing test.
 The player types the given text.
 The player presses Backspace.
@@ -190,7 +195,7 @@ You hurt E.
 The player must write an apology addressed to that letter.
 The apology must contain at least 50 words.
 The apology is then sent through:
-
+```
 Player
    ↓
 FastAPI
@@ -202,15 +207,17 @@ Ollama
 Sincerity Evaluation
    ↓
 Pass / Fail
-The AI evaluates:
+``` 
+### The AI evaluates:
 
-Genuine effort
-Coherence
-Relevance
-Whether the apology is actually directed at the letter
-Repeated or meaningless filler
-The project uses a local Ollama model so the apology evaluation can run locally rather than sending the player's text to a cloud AI service.
-DARE Mechanism
+- Genuine effort
+- Coherence
+- Relevance
+- Whether the apology is actually directed at the letter
+- Repeated or meaningless filler
+- The project uses a local Ollama model so the apology evaluation can run locally rather than sending the player's text to a cloud AI service.
+
+#### DARE Mechanism
 The Dare challenge turns the punishment into a physical interaction.
 The player must rotate a cardboard wheel a required number of times.
 The number of required rotations increases as the player chooses DARE multiple times during the game.
@@ -222,53 +229,8 @@ Example
 ...
 The exact values can be tuned depending on the final hardware implementation.
 The hardware sends rotation progress to the backend, which updates the game in real time.
-Screenshots
-Replace the placeholders below with screenshots from the actual application.
-1. Landing Page
 
-The landing page introduces Wacky TypoFreakout and allows the player to begin the game.
-2. Player Selection
 
-The player can sign in as a new player or choose an existing player.
-3. Typing Test
-
-The main typing interface where the player attempts to achieve the highest possible score.
-4. Truth or Dare
-
-The punishment selection screen shown after the player presses Backspace.
-5. Truth Challenge
-
-The player writes an apology to the letter they deleted.
-6. AI Sincerity Check
-
-The AI evaluates whether the player's apology is sincere enough.
-7. Dare Challenge
-
-The physical Dare challenge requiring the player to crank the wheel.
-8. Leaderboard
-
-The leaderboard displays player performance after completing the game.
-Diagrams
-Workflow Diagram
-
-Overall workflow showing how the player, frontend, backend, AI system, and hardware interact.
-System Architecture Diagram
-
-Architecture of the complete Wacky TypoFreakout system.
-Hardware
-Schematic & Circuit
-
-Circuit showing the ESP8266, MAX30102 sensor, and their connections.
-
-Detailed schematic of the hardware setup.
-Hardware Build
-Components
-
-ESP8266, MAX30102, cardboard wheel, wires, and other components used in the project.
-Build Process
-
-Construction of the physical cardboard wheel and sensor setup.
-Final Hardware
 
 Final assembled physical Dare mechanism.
 Project Demo
@@ -318,51 +280,63 @@ API Overview
 The backend exposes REST endpoints for communication with the frontend.
 MethodEndpointPurposePOST/api/session/startStart a new gamePOST/api/session/{id}/progressSynchronize typing progressPOST/api/session/{id}/backspaceRegister a BackspacePOST/api/incident/{id}/choiceSelect Truth or DarePOST/api/incident/{id}/apologySubmit Truth apologyPOST/api/incident/{id}/crank-progressUpdate Dare progressPOST/api/session/{id}/completeComplete the gameGET/api/letters/{letter}Get letter personality dataGET/api/healthCheck system health
 The backend uses a session state machine to prevent multiple punishments from being triggered while another punishment is already active.
-Installation
-Clone the Repository
-git clone YOUR_REPOSITORY_URL
+## Installation
+### Clone the Repository
+git clone YOUR_REPOSITORY_URL:
+```
 cd WackyTypoFreakout
 Frontend
 cd frontend
 npm install
-Run the frontend:
+```
 
+Run the frontend:
+```
 npm start
 Backend
+```
 Create a Python virtual environment:
-
+```
 python3 -m venv venv
+``` 
 Activate it:
-
+```
 Linux / macOS
 source venv/bin/activate
 Windows
 venv\Scripts\activate
+``` 
 Install dependencies:
-
+```
 pip install -r backend/requirements.txt
+```
 Run the backend:
-
+```
 uvicorn backend.src.main:app --reload --port 8000
-AI Setup
+```
+### AI Setup
 Install and run Ollama locally.
 Pull the required model:
-
+```
 ollama pull llama3.1:8b
+```
 Start Ollama and make sure it is available locally.
 The backend communicates with the n8n workflow, which handles the sincerity evaluation pipeline.
 n8n Setup
 Run n8n locally:
-
+```
 npx n8n
-Open:
+```
 
+Open:
+```
 http://localhost:5678
+```
 Import the sincerity-check workflow and configure the Ollama connection.
 Environment Variables
 Create a .env file for backend configuration.
 Example:
-
+```
 HOST=0.0.0.0
 PORT=8000
 
@@ -379,8 +353,12 @@ SINCERITY_PASS_THRESHOLD=70
 DARE_BASE_CRANK_COUNT=15
 DARE_CRANK_INCREMENT=10
 DARE_MAX_CRANK_COUNT=80
+```
 Do not commit the real .env file to GitHub.
-Project Structure
+
+
+## Project Structure
+```
 WackyTypoFreakout/
 │
 ├── README.md
@@ -465,14 +443,14 @@ WackyTypoFreakout/
 - AI/n8n integration
 - Hardware integration
 
-###Athira Adiparambil Anil
+### Athira Adiparambil Anil
 - Frontend development
 - User interface and experience
 - Typing-test interface
 - Player and leaderboard screens
 - Hardware interface/design
 
-##Why We Built This
+## Why We Built This
 
 Typing tests are usually about one thing:
 How fast can you type?
