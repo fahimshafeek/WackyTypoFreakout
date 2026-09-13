@@ -5,6 +5,8 @@ const screens = {
   tnc: document.getElementById('tnc-screen'),
   exam: document.getElementById('exam-screen'),
   apology: document.getElementById('apology-screen'),
+  choice: document.getElementById('choice-screen'),
+  dare: document.getElementById('dare-screen'),
   satisfied: document.getElementById('satisfied-screen'),
   leaderboard: document.getElementById('leaderboard-screen'),
   result: document.getElementById('result-screen'),
@@ -180,6 +182,7 @@ let isApologizing = false;
 let correctCharsCount = 0;
 
 function startExam() {
+  if (timerInterval) clearInterval(timerInterval);
   violations = [];
   words = Array.from({length: 500}, () => wordList[Math.floor(Math.random() * wordList.length)]);
   currentWordIndex = 0;
@@ -315,11 +318,42 @@ async function triggerApology(expectedLetter, typedLetter) {
   isApologizing = true;
   clearInterval(timerInterval); // Pause the timer!
   
-  // The user wants to apologize to the RED letter (the one they incorrectly summoned and are now erasing)
-  // which corresponds to 'typedLetter'.
   const upperTyped = typedLetter.toUpperCase();
   const lowerTyped = typedLetter.toLowerCase();
   
+  // Store for later use by choice handlers
+  window._currentTypedLetter = typedLetter;
+  window._currentUpperTyped = upperTyped;
+  window._currentLowerTyped = lowerTyped;
+  
+  // Set up the choice screen
+  document.getElementById('choice-character').src = `./assets/alphabets/${upperTyped}-angry.png`;
+  document.getElementById('choice-error-letter').textContent = lowerTyped;
+  document.getElementById('choice-letter-name').textContent = upperTyped;
+  
+  showScreen('choice');
+  
+  // Report backspace to backend
+  try {
+    const res = await fetch(`${API_BASE}/session/${taSessionId}/backspace`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ letter: lowerTyped, position: 0 })
+    });
+    const data = await res.json();
+    taIncidentId = data.incident_id;
+  } catch(e) { console.error(e); }
+}
+
+// ==========================================
+// TRUTH OR DARE CHOICE HANDLERS
+// ==========================================
+
+document.getElementById('btn-choose-truth').addEventListener('click', async () => {
+  const upperTyped = window._currentUpperTyped;
+  const lowerTyped = window._currentLowerTyped;
+  
+  // Set up the apology screen
   document.getElementById('apology-character').src = `./assets/alphabets/${upperTyped}-angry.png`;
   document.getElementById('apology-error-letter').textContent = lowerTyped;
   document.getElementById('apology-letter-name').textContent = upperTyped;
@@ -338,22 +372,93 @@ async function triggerApology(expectedLetter, typedLetter) {
   showScreen('apology');
   apologyInput.focus();
   
+  // Tell backend: truth
   try {
-    const res = await fetch(`${API_BASE}/session/${taSessionId}/backspace`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ letter: lowerTyped, position: 0 })
-    });
-    const data = await res.json();
-    taIncidentId = data.incident_id;
-    
-    // Automatically choose truth
     await fetch(`${API_BASE}/incident/${taIncidentId}/choice`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ choice: 'truth' })
     });
   } catch(e) { console.error(e); }
+});
+
+document.getElementById('btn-choose-dare').addEventListener('click', async () => {
+  const upperTyped = window._currentUpperTyped;
+  const lowerTyped = window._currentLowerTyped;
+  
+  // Set up the dare screen
+  document.getElementById('dare-character').src = `./assets/alphabets/${upperTyped}-angry.png`;
+  document.getElementById('dare-error-letter').textContent = lowerTyped;
+  document.getElementById('dare-letter-name').textContent = upperTyped;
+  document.getElementById('dare-rpm-value').textContent = '0';
+  document.getElementById('dare-progress-current').textContent = '0';
+  document.getElementById('dare-progress-bar').style.width = '0%';
+  document.getElementById('dare-status').textContent = 'Waiting for crank input...';
+  
+  showScreen('dare');
+  
+  // Tell backend: dare
+  try {
+    const res = await fetch(`${API_BASE}/incident/${taIncidentId}/choice`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ choice: 'dare' })
+    });
+    const data = await res.json();
+    if (data.crank_required) {
+      document.getElementById('dare-progress-required').textContent = data.crank_required;
+    }
+    if (data.hardware_connected === false) {
+      document.getElementById('dare-status').textContent = '⚠️ Hardware Disconnected - Cranking Unavailable';
+      document.getElementById('dare-status').style.color = '#ca4754';
+      document.getElementById('dare-status').style.fontWeight = 'bold';
+    } else {
+      document.getElementById('dare-status').style.color = '#999';
+      document.getElementById('dare-status').style.fontWeight = 'normal';
+    }
+  } catch(e) { console.error(e); }
+  
+  // Connect to RPM WebSocket for live RPM display
+  connectRpmWebSocket();
+});
+
+// ==========================================
+// RPM WEBSOCKET (for live RPM meter on Dare screen)
+// ==========================================
+let rpmWs = null;
+
+function connectRpmWebSocket() {
+  // Close existing connection if any
+  if (rpmWs) {
+    try { rpmWs.close(); } catch(e) {}
+  }
+  
+  rpmWs = new WebSocket('ws://localhost:8000/ws/rpm');
+  rpmWs.onmessage = (e) => {
+    try {
+      const data = JSON.parse(e.data);
+      const rpmEl = document.getElementById('dare-rpm-value');
+      if (rpmEl && data.rpm !== undefined) {
+        rpmEl.textContent = data.rpm;
+        // Subtle scale effect based on RPM
+        const scale = 1 + (data.rpm / 500);
+        rpmEl.style.transform = `scale(${Math.min(scale, 1.5)})`;
+      }
+    } catch(err) {}
+  };
+  rpmWs.onclose = () => {
+    // Only reconnect if we're still on the dare screen
+    if (screens.dare && screens.dare.classList.contains('active')) {
+      setTimeout(connectRpmWebSocket, 1000);
+    }
+  };
+}
+
+function disconnectRpmWebSocket() {
+  if (rpmWs) {
+    try { rpmWs.close(); } catch(e) {}
+    rpmWs = null;
+  }
 }
 
 document.getElementById('btn-submit-apology').addEventListener('click', finishApology);
@@ -386,6 +491,7 @@ async function finishApology() {
 }
 
 function endExam() {
+  if (!isExamActive) return;
   isExamActive = false;
   isApologizing = false;
   clearInterval(timerInterval);
@@ -485,17 +591,24 @@ function updateAdminView() {
         const li = document.createElement('li');
         li.style.display = 'flex';
         li.style.justifyContent = 'space-between';
-        li.style.marginBottom = '8px';
-        li.innerHTML = `<span>${p}</span>`;
+        li.style.alignItems = 'center';
+        li.style.marginBottom = '12px';
+        li.style.padding = '10px 15px';
+        li.style.background = '#f5f0e6';
+        li.style.border = '3px solid #272923';
+        li.style.borderRadius = '10px';
+        li.innerHTML = `<span style="font-weight: bold; font-size: 1.3rem; color: #272923;">${p}</span>`;
         
         const btn = document.createElement('button');
         btn.textContent = 'Remove';
-        btn.style.background = '#e74c3c';
-        btn.style.color = 'white';
-        btn.style.border = 'none';
-        btn.style.padding = '4px 8px';
+        btn.style.background = '#ca4754';
+        btn.style.color = '#fcf9e7';
+        btn.style.border = '3px solid #272923';
+        btn.style.padding = '5px 15px';
+        btn.style.fontSize = '1.1rem';
+        btn.style.fontWeight = 'bold';
         btn.style.cursor = 'pointer';
-        btn.style.borderRadius = '4px';
+        btn.style.borderRadius = '8px';
         
         btn.addEventListener('click', () => {
           if(confirm(`Remove all data for player: ${p}?`)) {
@@ -575,11 +688,48 @@ function handleTaWsEvent(msg) {
           }, 3000);
         }
       } else {
-        btn.textContent = "MAX ATTEMPTS EXHAUSTED. FORCED DARE. (GAME OVER)";
-        setTimeout(() => {
-            alert("DARE PENDING. Hardware not connected. Terminating Exam.");
-            endExam();
-        }, 2000);
+        // FORCED DARE: Truth attempts exhausted, transition to dare screen
+        btn.textContent = "MAX ATTEMPTS EXHAUSTED → FORCED DARE";
+        btn.disabled = true;
+        
+        setTimeout(async () => {
+          const upperTyped = window._currentUpperTyped || 'Z';
+          const lowerTyped = window._currentLowerTyped || 'z';
+          
+          document.getElementById('dare-character').src = `./assets/alphabets/${upperTyped}-angry.png`;
+          document.getElementById('dare-error-letter').textContent = lowerTyped;
+          document.getElementById('dare-letter-name').textContent = upperTyped;
+          document.getElementById('dare-rpm-value').textContent = '0';
+          document.getElementById('dare-progress-current').textContent = '0';
+          document.getElementById('dare-progress-bar').style.width = '0%';
+          document.getElementById('dare-status').textContent = 'Forced DARE! Crank the wheel!';
+          
+          showScreen('dare');
+          
+          // The backend should have already transitioned to DARE_PENDING with forced_dare
+          // We need to choose dare for the incident
+          try {
+            const res = await fetch(`${API_BASE}/incident/${taIncidentId}/choice`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ choice: 'dare' })
+            });
+            const data = await res.json();
+            if (data.crank_required) {
+              document.getElementById('dare-progress-required').textContent = data.crank_required;
+            }
+            if (data.hardware_connected === false) {
+              document.getElementById('dare-status').textContent = '⚠️ Hardware Disconnected - Cranking Unavailable';
+              document.getElementById('dare-status').style.color = '#ca4754';
+              document.getElementById('dare-status').style.fontWeight = 'bold';
+            } else {
+              document.getElementById('dare-status').style.color = '#999';
+              document.getElementById('dare-status').style.fontWeight = 'normal';
+            }
+          } catch(e) { console.error(e); }
+          
+          connectRpmWebSocket();
+        }, 1500);
       }
     } else {
       btn.textContent = `ACCEPTED! Score: ${msg.data.sincerity_score}`;
@@ -603,6 +753,42 @@ function handleTaWsEvent(msg) {
   } else if (msg.event === 'error') {
      document.getElementById('btn-submit-apology').textContent = `SYSTEM ERROR: ${msg.data.message}`;
      document.getElementById('btn-submit-apology').disabled = false;
+  } else if (msg.event === 'crank_progress') {
+    // Update dare screen progress
+    const current = msg.data.current;
+    const required = msg.data.required;
+    document.getElementById('dare-progress-current').textContent = current;
+    document.getElementById('dare-progress-required').textContent = required;
+    const pct = Math.min(100, (current / required) * 100);
+    document.getElementById('dare-progress-bar').style.width = pct + '%';
+    document.getElementById('dare-status').textContent = `Cranking... ${current}/${required}`;
+  } else if (msg.event === 'dare_complete' || msg.event === 'incident_resolved') {
+    // Only handle if we're on the dare screen
+    if (screens.dare && screens.dare.classList.contains('active')) {
+      document.getElementById('dare-status').textContent = 'DARE COMPLETE! 🎉';
+      document.getElementById('dare-progress-bar').style.width = '100%';
+      disconnectRpmWebSocket();
+      
+      // Show satisfied character then resume typing
+      const upperLetter = document.getElementById('dare-letter-name').textContent;
+      document.getElementById('satisfied-character').src = `./assets/alphabets/${upperLetter}-satisfied.png`;
+      setTimeout(() => {
+        showScreen('satisfied');
+        setTimeout(() => {
+          if (timer > 0 && isExamActive) {
+            isApologizing = false;
+            showScreen('exam');
+            renderWords();
+            
+            timerInterval = setInterval(() => {
+              timer--;
+              document.getElementById('timer').textContent = `${timer}s`;
+              if (timer <= 0) endExam();
+            }, 1000);
+          }
+        }, 2000);
+      }, 1000);
+    }
   }
 }
 

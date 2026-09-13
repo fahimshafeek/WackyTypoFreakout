@@ -25,6 +25,19 @@ from sqlmodel import Session, select
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
+    from backend.src.services.hardware.serial_provider import reader
+    reader.start()
+    
+    # Start RPM timeout checker in background
+    import threading
+    def rpm_timeout_loop():
+        import time as _time
+        while True:
+            _time.sleep(0.5)
+            now = _time.time()
+            if reader.last_pulse_time != 0 and now - reader.last_pulse_time > 5.0:
+                reader.reset_rpm()
+    threading.Thread(target=rpm_timeout_loop, daemon=True).start()
     # Seed letters if empty
     with Session(engine) as session:
         existing = session.exec(select(Letter)).first()
@@ -82,3 +95,19 @@ async def websocket_endpoint(websocket: WebSocket, session_id: UUID):
             # they use REST. So we just keep the loop alive.
     except WebSocketDisconnect:
         ws_manager.disconnect(session_id)
+
+@app.websocket("/ws/rpm")
+async def rpm_websocket(websocket: WebSocket):
+    """Live RPM feed from the hardware serial reader."""
+    import asyncio
+    await websocket.accept()
+    try:
+        from backend.src.services.hardware.serial_provider import reader
+        while True:
+            rpm = getattr(reader, 'current_rpm', 0)
+            await websocket.send_json({"rpm": rpm})
+            await asyncio.sleep(0.1)
+    except WebSocketDisconnect:
+        pass
+    except Exception:
+        pass
