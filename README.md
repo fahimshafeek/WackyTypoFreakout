@@ -1,4 +1,4 @@
-<img width="1280" height="640" alt="Wacky TypoFreakout Banner" src="/home/athira/WTF/frontend/desktop-app/assets/results/banner/banner.png" />
+<img width="1280" height="640" alt="Wacky TypoFreakout Banner" src="frontend/desktop-app/assets/results/banner/banner.png" />
 
 # Wacky TypoFreakout 🎯
 
