@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: typeandatone-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    disk:
+      name: sqlite-data
+      mountPath: /app/db
+      sizeGB: 1
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: DATABASE_URL
+        value: sqlite:////app/db/typeandatone.db
+      - key: OLLAMA_BASE_URL
+        value: http://localhost:11434 # Requires updating to actual Ollama URL if hosted
+      - key: N8N_SINCERITY_WEBHOOK_URL
+        value: http://localhost:5678/webhook/sincerity-check # Requires updating to actual n8n URL if hosted
+      - key: MIN_APOLOGY_WORDS
+        value: 50
+      - key: SINCERITY_PASS_THRESHOLD
+        value: 70
+      - key: MOCK_LLM_MODE
+        value: "true" # Mocked by default to avoid Ollama dependency on Render free tier
+      - key: MOCK_HARDWARE_MODE
+        value: "true"
+      # MongoDB URI should be set in Render dashboard (e.g. from MongoDB Atlas)
+      - key: MONGO_URI
+        sync: false
