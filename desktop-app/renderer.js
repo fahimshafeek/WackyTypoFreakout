@@ -650,23 +650,9 @@ document.getElementById('btn-choose-dare').addEventListener('click', async () =>
       document.getElementById('dare-progress-required').textContent = data.crank_required;
     }
     if (data.hardware_connected === false) {
-      document.getElementById('dare-status').textContent = '⚠️ Hardware Disconnected - Auto-Cranking...';
+      document.getElementById('dare-status').textContent = '⚠️ Hardware Disconnected - Cranking Unavailable';
       document.getElementById('dare-status').style.color = '#ca4754';
       document.getElementById('dare-status').style.fontWeight = 'bold';
-      
-      let simProgress = 0;
-      const target = data.crank_required || 15;
-      const simInterval = setInterval(async () => {
-         simProgress += 1;
-         try {
-           await fetch(`${API_BASE}/incident/${taIncidentId}/crank-progress`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ progress: simProgress })
-           });
-         } catch(e) {}
-         if (simProgress >= target || !isApologizing) clearInterval(simInterval);
-      }, 200);
     } else {
       document.getElementById('dare-status').style.color = '#999';
       document.getElementById('dare-status').style.fontWeight = 'normal';
@@ -995,23 +981,9 @@ function handleTaWsEvent(msg) {
               document.getElementById('dare-progress-required').textContent = data.crank_required;
             }
             if (data.hardware_connected === false) {
-              document.getElementById('dare-status').textContent = '⚠️ Hardware Disconnected - Auto-Cranking...';
+              document.getElementById('dare-status').textContent = '⚠️ Hardware Disconnected - Cranking Unavailable';
               document.getElementById('dare-status').style.color = '#ca4754';
               document.getElementById('dare-status').style.fontWeight = 'bold';
-              
-              let simProgress = 0;
-              const target = data.crank_required || 15;
-              const simInterval = setInterval(async () => {
-                 simProgress += 1;
-                 try {
-                   await fetch(`${API_BASE}/incident/${taIncidentId}/crank-progress`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ progress: simProgress })
-                   });
-                 } catch(e) {}
-                 if (simProgress >= target || !isApologizing) clearInterval(simInterval);
-              }, 200);
             } else {
               document.getElementById('dare-status').style.color = '#999';
               document.getElementById('dare-status').style.fontWeight = 'normal';
@@ -1150,7 +1122,7 @@ document.getElementById('btn-admin-view').addEventListener('click', async () => 
   updateAdminView();
   showScreen('admin');
 });
-document.getElementById('btn-admin-back').addEventListener('click', () => showScreen('login'));
+document.getElementById('btn-admin-back').addEventListener('click', () => showScreen('intro'));
 
 const adminTabs = ['leaderboard', 'violations', 'players'];
 adminTabs.forEach(tab => {
