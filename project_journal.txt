@@ -70,3 +70,4 @@
 [2026-09-13T02:47:17Z] Changed the 'Go Back Home' button on the results screen to route directly to the 'Sign In' page instead of the 'Intro' page, per user request.
 [2026-09-13T03:26:37Z] Merged 'origin/frontend' into 'main'. Successfully integrated the friend's massive new 'Dare RPM Crank' screen and UI overhaul while surgically preserving all of our exclusive backend features (MongoDB, anti-spam skips, dropping cats, correct results screen routing, and MongoDB admin portal).
 [2026-09-13T03:32:44Z] Fixed the Truth and Dare buttons which were corrupted during the merge, causing the backend to reject apologies. Also implemented an Auto-Crank simulation fallback for the Dare screen so players don't get softlocked when the physical hardware crank isn't connected.
+[2026-09-13T03:34:15Z] Completed comprehensive bug hunt and fixed the remaining UI state integration issues after the merge.
