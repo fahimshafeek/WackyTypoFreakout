@@ -105,34 +105,19 @@ class SerialReaderThread(threading.Thread):
             incident = db.exec(stmt2).first()
             if not incident:
                 return
-
-            incident.crank_progress = (incident.crank_progress or 0) + 1
-
-            if incident.crank_required is not None and incident.crank_progress >= incident.crank_required:
-                incident.outcome = "pass"
-                game_session.state = SessionState.RESOLVED
-
-                db.add(incident)
-                db.add(game_session)
-                db.commit()
-
-                # Push async events
-                loop = asyncio.new_event_loop()
-                loop.run_until_complete(ws_manager.send_message(game_session.id, "dare_complete", {"incident_id": str(incident.id)}))
-                loop.run_until_complete(ws_manager.send_message(game_session.id, "incident_resolved", {"incident_id": str(incident.id)}))
-
-                game_session.state = SessionState.TYPING
-                db.add(game_session)
-                db.commit()
-            else:
-                db.add(incident)
-                db.commit()
-
-                loop = asyncio.new_event_loop()
-                loop.run_until_complete(ws_manager.send_message(game_session.id, "crank_progress", {
-                    "incident_id": str(incident.id),
-                    "current": incident.crank_progress,
-                    "required": incident.crank_required
-                }))
+                
+            new_prog = (incident.crank_progress or 0) + 1
+            incident_id = str(incident.id)
+            
+        # Call the REST API to handle DB updates and WS broadcasting safely on the main event loop
+        import urllib.request
+        import json
+        try:
+            url = f"http://127.0.0.1:8000/api/incidents/{incident_id}/crank-progress"
+            data = json.dumps({"progress": new_prog}).encode('utf-8')
+            req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'}, method='POST')
+            urllib.request.urlopen(req, timeout=1)
+        except Exception as e:
+            print(f"[Hardware] Error reporting pulse: {e}")
 
 reader = SerialReaderThread()
