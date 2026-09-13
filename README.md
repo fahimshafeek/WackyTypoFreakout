@@ -9,6 +9,7 @@ A Monkeytype-inspired typing game where making a mistake doesn't just lower your
 Press Backspace and the letter you deleted gets its revenge. Choose your punishment: **TRUTH or DARE**. Complete the challenge, and only then can you return to typing.
 
 
+[Click here to visit our site](https://wackytypofreakout.onrender.com)
 
 **Wacky TypoFreakout** is a typing game where every mistake has a consequence.
 
