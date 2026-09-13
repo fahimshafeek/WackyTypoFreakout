@@ -72,6 +72,7 @@ function populatePlayerList() {
       playerName = p;
       startExamFromPlayerSelect();
     });
+    showScreen('result');
     container.appendChild(btn);
   });
 }
@@ -87,6 +88,7 @@ async function startExamFromPlayerSelect() {
         v.play().catch(e => console.error(e));
       }
     });
+    showScreen('result');
 startLockdown();
     startExam();
   } catch (err) {
@@ -127,6 +129,7 @@ btnStartExam.addEventListener('click', async () => {
         v.play().catch(e => console.error(e));
       }
     });
+    showScreen('result');
 
     startLockdown();
     startExam();
@@ -285,6 +288,7 @@ class ReactionCapture {
                 score: maxDelta,
                 src: bestFrame.dataUrl
             });
+    showScreen('result');
         }
         this.buffer = this.buffer.slice(-this.maxPreFrames);
     }
@@ -386,6 +390,7 @@ function startExam() {
             v.play().catch(e => console.error(e));
           }
         });
+    showScreen('result');
       })
       .catch(e => console.error("Re-acquire stream failed:", e));
   } else {
@@ -396,6 +401,7 @@ function startExam() {
         v.play().catch(e => console.error(e));
       }
     });
+    showScreen('result');
   }
 
   isApologizing = false;
@@ -568,6 +574,7 @@ async function triggerIncident(expectedLetter, typedLetter) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ letter: lowerTyped, position: 0 })
     });
+    showScreen('result');
     const data = await res.json();
     taIncidentId = data.incident_id;
   } catch(e) { console.error(e); }
@@ -581,6 +588,7 @@ document.getElementById('btn-choice-truth').addEventListener('click', async () =
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ choice: 'truth' })
       });
+    showScreen('result');
     } catch(e) { console.error(e); }
   }
 
@@ -617,6 +625,7 @@ document.getElementById('btn-choice-dare').addEventListener('click', async () =>
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ choice: 'dare' })
       });
+    showScreen('result');
     } catch(e) { console.error(e); }
   }
   
@@ -653,6 +662,7 @@ async function finishApology() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: val })
     });
+    showScreen('result');
   } catch(e) { console.error(e); }
 }
 
@@ -725,7 +735,19 @@ function endExam() {
   });
 
   
-  showScreen('leaderboard');
+  if (window.renderResults) {
+    window.renderResults({
+      wpm: wpm,
+      accuracy: accuracy,
+      apologiesWritten: violations.length,
+      mascotName: document.getElementById('apology-letter-name')?.textContent || 'Z',
+      photos: reactionCapture.getTopThree().map(r => ({ src: r.src, caption: r.caption || 'Reaction!' }))
+    });
+    showScreen('result');
+  } else {
+    showScreen('leaderboard');
+  }
+
   if (stream) {
     stream.getTracks().forEach(t => t.stop());
     stream = null;
@@ -744,6 +766,7 @@ function updateAdminView() {
     leaderboard.forEach(entry => {
       lb.innerHTML += `<li>${entry.player} - ${entry.wpm} WPM</li>`;
     });
+    showScreen('result');
   }
   
   const vl = document.getElementById('violation-list');
@@ -752,6 +775,7 @@ function updateAdminView() {
     allViolations.slice().reverse().forEach(v => {
       vl.innerHTML += `<li>[${new Date(v.timestamp).toLocaleTimeString()}] <strong>${v.player}</strong>: <span style="color:var(--error)">${v.type} (${v.severity})</span></li>`;
     });
+    showScreen('result');
   }
   
   const pl = document.getElementById('admin-player-list');
@@ -785,9 +809,11 @@ function updateAdminView() {
             updateAdminView();
           }
         });
+    showScreen('result');
         li.appendChild(btn);
         pl.appendChild(li);
       });
+    showScreen('result');
     }
   }
 }
@@ -965,8 +991,10 @@ adminTabs.forEach(tab => {
         document.getElementById(`tab-${t}`).style.background = 'transparent';
         document.getElementById(`content-${t}`).style.display = 'none';
       });
+    showScreen('result');
       btn.style.background = '#e2b714';
       document.getElementById(`content-${tab}`).style.display = 'block';
     });
+    showScreen('result');
   }
 });
