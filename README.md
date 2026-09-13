@@ -222,27 +222,9 @@ The Dare challenge turns the punishment into a physical interaction.
 The player must rotate a cardboard wheel a required number of times.
 The number of required rotations increases as the player chooses DARE multiple times during the game.
 
-Example
-1st Dare  → 15 rotations
-2nd Dare  → 25 rotations
-3rd Dare  → 35 rotations
-...
-The exact values can be tuned depending on the final hardware implementation.
-The hardware sends rotation progress to the backend, which updates the game in real time.
 
-<br>
 
-Final assembled physical Dare mechanism. <br>
-Project Demo <br>
-Demo Video <br>
-Replace the link below with the final project demonstration video. <br>
-▶️ Watch the Wacky TypoFreakout Demo <br>
-The video demonstrates the complete experience from starting the typing test to triggering a punishment and returning to the game. <br>
-
-Leaderboard <br>
-Wacky TypoFreakout keeps track of player performance across games. <br>
-
-The system records:
+#### The system records:
 
 Number of games played
 Average score
