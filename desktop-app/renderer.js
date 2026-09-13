@@ -903,8 +903,16 @@ async function initTypeAndAtone() {
     taSessionId = data.session_id;
     console.log("Type & Atone Session Started:", taSessionId);
     
-    taWs = new WebSocket(`ws://localhost:8000/ws/session/${taSessionId}`);
-    taWs.onmessage = (e) => handleTaWsEvent(JSON.parse(e.data));
+    function connectTaWs() {
+      taWs = new WebSocket(`ws://localhost:8000/ws/session/${taSessionId}`);
+      taWs.onmessage = (e) => handleTaWsEvent(JSON.parse(e.data));
+      taWs.onclose = () => {
+        setTimeout(() => {
+          if (taSessionId) connectTaWs();
+        }, 1000);
+      };
+    }
+    connectTaWs();
   } catch (err) {
     console.error("Failed to initialize Type & Atone backend:", err);
   }
