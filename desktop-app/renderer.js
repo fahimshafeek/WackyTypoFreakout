@@ -904,7 +904,7 @@ document.addEventListener("results:play-again", () => {
     showScreen('exam'); 
 });
 document.addEventListener("results:home", () => { 
-    showScreen('intro'); 
+    showScreen('signin'); 
 });
 document.addEventListener("results:keep-typing", () => { 
     startExam(); 

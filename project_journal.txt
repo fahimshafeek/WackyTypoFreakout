@@ -67,3 +67,4 @@
 [2026-09-12T23:23:40Z] Replaced local storage with a real MongoDB backend database running via Docker. Wrote full API routing in Python FastAPI to securely post and retrieve all typing results, violations, and leaderboard metrics. Fully opened and hooked up the admin portal UI to these new endpoints so real global data can be managed in real-time.
 [2026-09-13T01:32:57Z] Fixed the end-of-game transition so that finishing a typing exam brings back our custom 3-photo animated results screen instead of jumping directly to the new leaderboard.
 [2026-09-13T01:36:22Z] Reverted a catastrophic sed injection that broke all event listeners and bypassed the 'Sign In -> T&C -> Exam' flow. Fixed the 'Go Home' button on the results screen so it correctly routes back to the main intro page instead of a dead route.
+[2026-09-13T02:47:17Z] Changed the 'Go Back Home' button on the results screen to route directly to the 'Sign In' page instead of the 'Intro' page, per user request.
