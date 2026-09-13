@@ -230,24 +230,18 @@ Example
 The exact values can be tuned depending on the final hardware implementation.
 The hardware sends rotation progress to the backend, which updates the game in real time.
 
+<br>
 
+Final assembled physical Dare mechanism. <br>
+Project Demo <br>
+Demo Video <br>
+Replace the link below with the final project demonstration video. <br>
+▶️ Watch the Wacky TypoFreakout Demo <br>
+The video demonstrates the complete experience from starting the typing test to triggering a punishment and returning to the game. <br>
 
-Final assembled physical Dare mechanism.
-Project Demo
-Demo Video
-Replace the link below with the final project demonstration video.
-▶️ Watch the Wacky TypoFreakout Demo
-The video demonstrates the complete experience from starting the typing test to triggering a punishment and returning to the game.
-Additional Demos
-Demo Video 2 — Hardware
-Demo Video 3 — AI Truth Challenge
-Project Presentation
-Project Documentation
-Leaderboard
-Wacky TypoFreakout keeps track of player performance across games.
-The leaderboard contains:
-PlayerGames PlayedAverage ScoreTop ScorePlayer 1578.491Player 2872.688Player 3381.294
-Player Statistics
+Leaderboard <br>
+Wacky TypoFreakout keeps track of player performance across games. <br>
+
 The system records:
 
 Number of games played
@@ -274,12 +268,7 @@ Players can interact with a real cardboard crank mechanism to complete Dare chal
 📊 Player Leaderboard
 Track games played, average scores, and personal bests.
 
-⚡ Real-Time Updates
-WebSockets allow the frontend to receive punishment and hardware progress instantly.
-API Overview
-The backend exposes REST endpoints for communication with the frontend.
-MethodEndpointPurposePOST/api/session/startStart a new gamePOST/api/session/{id}/progressSynchronize typing progressPOST/api/session/{id}/backspaceRegister a BackspacePOST/api/incident/{id}/choiceSelect Truth or DarePOST/api/incident/{id}/apologySubmit Truth apologyPOST/api/incident/{id}/crank-progressUpdate Dare progressPOST/api/session/{id}/completeComplete the gameGET/api/letters/{letter}Get letter personality dataGET/api/healthCheck system health
-The backend uses a session state machine to prevent multiple punishments from being triggered while another punishment is already active.
+
 ## Installation
 ### Clone the Repository
 git clone YOUR_REPOSITORY_URL:
@@ -471,15 +460,4 @@ Made with ❤️ at TinkerHub Useless Projects
 ---
 
 ### 📸 Visual Gallery
-
-| Screenshot 1 | Screenshot 2 |
-| :---: | :---: |
-| ![Image 1](frontend/desktop-app/assets/results/images/1.jpeg) | ![Image 2](frontend/desktop-app/assets/results/images/2.jpeg) |
-
-| Screenshot 3 | Screenshot 4 |
-| :---: | :---: |
-| ![Image 3](frontend/desktop-app/assets/results/images/3.jpeg) | ![Image 4](frontend/desktop-app/assets/results/images/4.jpeg) |
-
-| Screenshot 5 | Untitled |
-| :---: | :---: |
-| ![Image 5](frontend/desktop-app/assets/results/images/5.jpeg) | ![Untitled](frontend/desktop-app/assets/results/images/Untitled.jpeg) |
+* [▶️ View Project Images](https://drive.google.com/drive/folders/1qcV7hf-Bga-OImMG7bQTcxov-A7HHP_S)
