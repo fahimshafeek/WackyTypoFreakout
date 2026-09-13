@@ -3,7 +3,8 @@ from pydantic import BaseModel
 from pymongo import MongoClient
 import os
 
-mongo_client = MongoClient("mongodb://localhost:27017/")
+mongo_uri = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
+mongo_client = MongoClient(mongo_uri)
 mongo_db = mongo_client["wacky_typo"]
 
 router = APIRouter()
